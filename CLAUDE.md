@@ -12,12 +12,14 @@
 - [x] Kumulativni dug logika (ukupno zarađeno − ukupno isplaćeno)
 - [x] GitHub API sync (read/write sa debounce 1s)
 - [x] Onboarding screen (PAT + GitHub username unos)
-- [ ] GitHub Pages deploy (korisnik postavlja ručno u repo Settings)
+- [x] GitHub Pages deploy — https://matijawork.github.io/emmezeta-zarada/
 - [x] Edge cases: smjena preko ponoći, nedjelja ×2, blagdan ×2, offline fallback
 
 ## Otvoreni bugovi / TODO
 - Nema poznatih bugova
-- TODO: korisnik treba kreirati GitHub repo "emmezeta-zarada" kao PUBLIC te omogućiti GitHub Pages (Settings → Pages → main branch → /root)
+- GitHub username: matijawork
+- GitHub Pages aktivan: https://matijawork.github.io/emmezeta-zarada/
+- Za PAT u app onboardingu: kreiraj Fine-grained token na GitHub → Settings → Developer settings → Personal access tokens, Contents rw za repo emmezeta-zarada
 
 ## Arhitektura napomene
 - Single file: index.html (CSS + JS inline, bez dependencija)
