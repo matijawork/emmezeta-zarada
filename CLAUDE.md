@@ -41,20 +41,23 @@
 ## Data shape (data.json u GitHub repu)
 ```json
 {
-  "config": { "hourlyRate": 5.31, "ownerName": "Matija" },
-  "shifts": [{ "id": "uuid", "date": "2026-06-15", "startTime": "07:00", "endTime": "15:00" }],
+  "config": { "hourlyRate": 6.56, "ownerName": "Matija" },
+  "shifts": [{ "id": "uuid", "date": "2026-06-15", "startTime": "07:00", "endTime": "15:00", "double": false }],
   "payments": [{ "id": "uuid", "date": "2026-06-22", "amount": 260.00, "weekKey": "2026-W26", "note": "" }]
 }
 ```
 
 ## Izračuni
-- Satnica: konfigurabilan (default 5.31 €/h)
-- Nedjelja: getDay() === 0 → ×2
-- Blagdani (hardcoded Set): 2026-08-05 (Dan pobjede), 2026-08-15 (Velika Gospa) → ×2
+- Satnica: konfigurabilan (default 6.56 €/h)
+- Dvostruka satnica: RUČNO po smjeni — shift.double === true → ×2 (nema više auto nedjelja/blagdani)
+- shiftRate(sh) = baseRate × (sh.double ? 2 : 1); shiftEarned = sati × shiftRate
+- MAXH = 8 → ako calcHours > 8 → crveno upozorenje na unosu (Matija ne smije >8h)
 - Smjena preko ponoći: endMins <= startMins → endMins += 1440
 - Sve $$: Math.round(x * 100) / 100
 - Kumulativni dug = totalEarned() − totalPaid()
 - ISO tjedan: "YYYY-WNN" format
+- PRESETS: brze smjene (07–15, 08–16, 09–17, 14–22, 06–14) na unosu
+- Maknuto: workDaysLeft brojač, Blagdani sekcija, auto ×2 badge-evi
 
 ## GitHub info
 - Repo: https://github.com/matijawork/emmezeta-zarada
@@ -63,7 +66,7 @@
 
 ## Kritično za sljedeću sesiju
 - Satnica se mijenja u Postavkama → sprema u data.json config
-- Sve kalkulacije su DERIVIRANE iz shifts — ništa se ne sprema osim id/date/startTime/endTime
+- Sve kalkulacije su DERIVIRANE iz shifts — sprema se id/date/startTime/endTime/double
 - weekKey u payments mora biti isoWeek(date) format (npr. "2026-W26")
 - Ako GitHub sync ne radi → podaci lokalno u localStorage 'ez_offline', sync pri sljedećem init()
 - classifier blokira komande s gh tokenima — korisnik mora sam pokrenuti u Terminal.app
