@@ -1,56 +1,69 @@
 # emmezeta-zarada — Claude Memory
 
 ## Status
-- Zadnja sesija: 2026-06-12
-- Faza: build
+- Zadnja sesija: 2026-06-16
+- Faza: complete (deploy done, cross-device setup done)
 
 ## Što je gotovo
-- [x] Git setup + lokalni repo
-- [x] index.html struktura i dizajn (black/purple theme)
-- [x] Dnevni unos logika (datum, početak, kraj → auto izračun)
+- [x] Git setup + GitHub public repo (matijawork/emmezeta-zarada)
+- [x] index.html — full black + premium purple dizajn, single file SPA
+- [x] Dnevni unos: datum, početak, kraj → auto sati, stopa, zarada
 - [x] Tjedni izračuni (ISO tjedni, ponedjeljak–nedjelja)
 - [x] Kumulativni dug logika (ukupno zarađeno − ukupno isplaćeno)
-- [x] GitHub API sync (read/write sa debounce 1s)
-- [x] Onboarding screen (PAT + GitHub username unos)
+- [x] Verifikacija isplate (tjedna provjera + evidencija)
+- [x] GitHub API sync (read/write, debounce 1s, offline fallback)
+- [x] Auto-setup via URL hash (#setup-OWNER_B64-TOKEN_B64)
+- [x] Onboarding ekran (username + token, objašnjava `gh auth token`)
+- [x] setup-laptop.sh — auto generira setup URL i otvara browser
+- [x] Postavke: "Generiraj setup link za mobitel" → kopiraj URL → otvori na mobitelu
 - [x] GitHub Pages deploy — https://matijawork.github.io/emmezeta-zarada/
 - [x] Edge cases: smjena preko ponoći, nedjelja ×2, blagdan ×2, offline fallback
 
 ## Otvoreni bugovi / TODO
 - Nema poznatih bugova
-- GitHub username: matijawork
-- GitHub Pages aktivan: https://matijawork.github.io/emmezeta-zarada/
-- Za PAT u app onboardingu: kreiraj Fine-grained token na GitHub → Settings → Developer settings → Personal access tokens, Contents rw za repo emmezeta-zarada
 
-## Arhitektura napomene
+## Arhitektura
 - Single file: index.html (CSS + JS inline, bez dependencija)
-- Repo: public, GitHub Pages enabled
-- Data: data.json u GitHub repu via API (GitHub Contents API)
-- PAT: localStorage key = 'gh_pat', username = 'gh_owner' — NIKAD u repo
-- SHA za write: uvijek dohvati svježi GET prije PUT-a (u ghWrite())
-- Encoding: TextEncoder/TextDecoder za UTF-8 safe base64 (podržava čšžćđ u imenima)
-- Auto-save: debounce 1000ms na svaku izmjenu (scheduleSave())
-- Offline fallback: localStorage key = 'offline_data', sync pri sljedećem init()
+- Storage: GitHub API → data.json u repu (primary), localStorage kao cache/offline
+- Auth: GitHub OAuth token (gh auth token) ili PAT — localStorage keys: gh_pat, gh_owner
+- SHA write: uvijek svježi GET prije PUT (u ghWrite())
+- Encoding: TextEncoder/TextDecoder (UTF-8 safe, podržava čšžćđ)
+- Auto-save: debounce 1000ms (scheduleSave())
+- Offline fallback: localStorage key = 'ez_offline'
 
-## Izračuni
-- Satnica: konfigurabilan u Postavkama (default 5.31 €/h)
-- Nedjelja: automatski ×2 (isSun() via getDay() === 0)
-- Blagdani: hardcoded Set: 2026-08-05 (Dan pobjede), 2026-08-15 (Velika Gospa)
-- Smjena preko ponoći: ako endTime <= startTime → endMins += 1440 (calcHours())
-- Sav novac: Math.round(x * 100) / 100 (money() helper)
-- Kumulativni dug = totalEarned() − totalPaid() (nikad parcijalni tjedni)
-- ISO tjedan: isoWeek() → "YYYY-WNN" format
+## Auto-setup flow (cross-device)
+- URL format: `https://matijawork.github.io/emmezeta-zarada/#setup-OWNER_B64-TOKEN_B64`
+- Base64url encode/decode: b64e/b64d funkcije u app-u
+- App na init() čita hash → sprema u localStorage → briše hash → nastavlja normalno
+- Laptop: pokrenuti `bash ~/Desktop/emmezeta-zarada/setup-laptop.sh`
+- Mobitel: Postavke → "Generiraj setup link za mobitel" → kopiraj → otvori
 
-## Data shape (data.json)
+## Data shape (data.json u GitHub repu)
 ```json
 {
   "config": { "hourlyRate": 5.31, "ownerName": "Matija" },
   "shifts": [{ "id": "uuid", "date": "2026-06-15", "startTime": "07:00", "endTime": "15:00" }],
-  "payments": [{ "id": "uuid", "date": "2026-06-22", "amount": 260.00, "weekKey": "2026-W25", "note": "" }]
+  "payments": [{ "id": "uuid", "date": "2026-06-22", "amount": 260.00, "weekKey": "2026-W26", "note": "" }]
 }
 ```
 
+## Izračuni
+- Satnica: konfigurabilan (default 5.31 €/h)
+- Nedjelja: getDay() === 0 → ×2
+- Blagdani (hardcoded Set): 2026-08-05 (Dan pobjede), 2026-08-15 (Velika Gospa) → ×2
+- Smjena preko ponoći: endMins <= startMins → endMins += 1440
+- Sve $$: Math.round(x * 100) / 100
+- Kumulativni dug = totalEarned() − totalPaid()
+- ISO tjedan: "YYYY-WNN" format
+
+## GitHub info
+- Repo: https://github.com/matijawork/emmezeta-zarada
+- GitHub Pages: https://matijawork.github.io/emmezeta-zarada/
+- Branch: main, root /
+
 ## Kritično za sljedeću sesiju
-- Sve izračunate vrijednosti (sati, zarada, stopa) su DERIVIRANE, ne pohraniti u data.json
-- weekKey u payments = isoWeek(date) — isti format kao u shifts
-- GitHub Pages URL: https://{gh_owner}.github.io/emmezeta-zarada
-- Datum range sezone: 2026-06-15 do 2026-09-30
+- Satnica se mijenja u Postavkama → sprema u data.json config
+- Sve kalkulacije su DERIVIRANE iz shifts — ništa se ne sprema osim id/date/startTime/endTime
+- weekKey u payments mora biti isoWeek(date) format (npr. "2026-W26")
+- Ako GitHub sync ne radi → podaci lokalno u localStorage 'ez_offline', sync pri sljedećem init()
+- classifier blokira komande s gh tokenima — korisnik mora sam pokrenuti u Terminal.app
