@@ -6,170 +6,195 @@
   <title>Emmezeta 2026</title>
   <style>
     :root {
-      --bg: #09090f;
-      --surface: #12121f;
-      --surface2: #1c1c30;
-      --border: #2a2a48;
-      --primary: #7c3aed;
-      --primary-light: #a855f7;
-      --primary-dim: #3b0764;
-      --accent: #c084fc;
-      --text: #e2e8f0;
-      --text-dim: #94a3b8;
-      --text-muted: #64748b;
-      --success: #22c55e;
-      --error: #ef4444;
-      --warning: #f59e0b;
-      --r: 12px;
-      --rs: 8px;
+      --bg:       #000000;
+      --s1:       #0a0a0a;
+      --s2:       #111111;
+      --s3:       #181818;
+      --border:   #1e1e1e;
+      --bpurple:  rgba(124,58,237,.25);
+      --p:        #7c3aed;
+      --pl:       #a78bfa;
+      --pd:       #4c1d95;
+      --acc:      #c4b5fd;
+      --glow:     rgba(124,58,237,.18);
+      --glow2:    rgba(124,58,237,.08);
+      --text:     #f1f5f9;
+      --dim:      #94a3b8;
+      --muted:    #4b5563;
+      --ok:       #22c55e;
+      --okd:      rgba(34,197,94,.12);
+      --err:      #ef4444;
+      --errd:     rgba(239,68,68,.12);
+      --warn:     #f59e0b;
+      --r:        14px;
+      --rs:       10px;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.5; }
-    #app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.5;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+    #app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative}
 
     /* NAV */
-    nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--surface); border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
-    nav button { flex: 1; padding: 10px 4px; background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px; font-weight: 600; transition: color .2s; }
-    nav button.active { color: var(--primary-light); }
-    nav button svg { width: 22px; height: 22px; stroke-width: 1.8; }
+    nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(0,0,0,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+    nav button{flex:1;padding:11px 4px 10px;background:none;border:none;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:600;letter-spacing:.02em;transition:color .2s}
+    nav button.active{color:var(--pl)}
+    nav button.active svg{filter:drop-shadow(0 0 6px rgba(167,139,250,.5))}
+    nav button svg{width:22px;height:22px;stroke-width:1.7}
 
     /* MAIN */
-    main { flex: 1; padding: 16px; padding-bottom: 84px; overflow-y: auto; }
+    main{flex:1;padding:20px 16px;padding-bottom:90px;overflow-y:auto}
 
     /* HEADER */
-    .hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-    .hdr h1 { font-size: 20px; font-weight: 800; background: linear-gradient(135deg, var(--primary-light), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
-    .sync-dot.syncing { background: var(--warning); animation: blink 1s infinite; }
-    .sync-dot.error { background: var(--error); }
-    @keyframes blink { 0%,100%{opacity:1}50%{opacity:.25} }
+    .hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+    .hdr h1{font-size:20px;font-weight:800;letter-spacing:-.02em;background:linear-gradient(135deg,var(--pl) 0%,var(--acc) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .sdot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex-shrink:0;transition:background .3s}
+    .sdot.syncing{background:var(--warn);animation:blink .9s infinite}
+    .sdot.err{background:var(--err)}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+    /* HERO DEBT */
+    .hero{background:radial-gradient(ellipse 120% 80% at 50% 0%,rgba(109,40,217,.22) 0%,rgba(76,29,149,.08) 50%,transparent 100%),var(--s1);border:1px solid rgba(109,40,217,.35);border-radius:var(--r);padding:28px 20px 24px;text-align:center;margin-bottom:14px;box-shadow:0 0 60px rgba(109,40,217,.15),inset 0 1px 0 rgba(167,139,250,.08);position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;inset:-1px;border-radius:var(--r);background:linear-gradient(135deg,rgba(167,139,250,.06),transparent 60%);pointer-events:none}
+    .hero-label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--acc);margin-bottom:12px;opacity:.85}
+    .hero-amt{font-size:58px;font-weight:800;letter-spacing:-.03em;line-height:1;background:linear-gradient(160deg,#fff 30%,var(--pl) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 30px rgba(167,139,250,.3))}
+    .hero-amt.zero{background:linear-gradient(160deg,#fff 30%,var(--ok) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero-sub{font-size:12px;color:var(--muted);margin-top:10px;letter-spacing:.01em}
+
+    /* STATS */
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    .stat{background:var(--s1);border:1px solid var(--border);border-radius:var(--rs);padding:15px}
+    .stat-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+    .stat-val{font-size:24px;font-weight:800;letter-spacing:-.02em}
+    .stat-val.earned{color:var(--pl)}
+    .stat-val.paid{color:var(--ok)}
 
     /* CARDS */
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; margin-bottom: 12px; }
-    .clabel { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
-
-    /* DEBT HERO */
-    .debt-hero { background: linear-gradient(135deg, var(--primary-dim) 0%, #1a0533 100%); border: 1px solid var(--primary); border-radius: var(--r); padding: 24px 20px; text-align: center; margin-bottom: 12px; }
-    .debt-hero-label { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
-    .debt-hero-amount { font-size: 52px; font-weight: 800; color: #fff; letter-spacing: -.02em; line-height: 1; }
-    .debt-hero-amount.zero { color: var(--success); }
-    .debt-hero-sub { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
-
-    /* STATS GRID */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-    .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rs); padding: 14px; }
-    .stat-val { font-size: 22px; font-weight: 700; }
-    .stat-val.earned { color: var(--primary-light); }
-    .stat-val.paid { color: var(--success); }
-
-    /* FORM */
-    .fg { margin-bottom: 14px; }
-    label { display: block; font-size: 13px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px; }
-    input[type=date], input[type=time], input[type=number], input[type=text], input[type=password], select {
-      width: 100%; padding: 12px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--rs);
-      color: var(--text); font-size: 16px; outline: none; transition: border-color .2s; -webkit-appearance: none; appearance: none;
-    }
-    input:focus, select:focus { border-color: var(--primary-light); }
-    input[type=number] { -moz-appearance: textfield; }
-    input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-    /* BUTTONS */
-    .btn { width: 100%; padding: 14px; border: none; border-radius: var(--rs); font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity .15s, transform .1s; }
-    .btn:active { transform: scale(.97); }
-    .btn:disabled { opacity: .45; cursor: not-allowed; }
-    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; }
-    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-    .btn-danger { background: var(--error); color: #fff; }
-
-    /* CALC PREVIEW */
-    .calc-preview { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--rs); padding: 14px; margin-bottom: 16px; }
-    .cr { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 14px; }
-    .cr.total { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 12px; font-size: 20px; font-weight: 700; color: var(--primary-light); }
-
-    /* BADGE */
-    .badge { padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
-    .b-sun { background: #3b0764; color: var(--accent); }
-    .b-hol { background: #450a0a; color: #fca5a5; }
-    .b-norm { background: var(--surface2); color: var(--text-muted); }
-
-    /* WEEK ITEMS */
-    .week-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rs); margin-bottom: 8px; overflow: hidden; }
-    .week-hdr { display: flex; justify-content: space-between; align-items: center; padding: 13px 14px; cursor: pointer; user-select: none; }
-    .week-hdr:active { background: var(--surface2); }
-    .week-title { font-size: 14px; font-weight: 600; }
-    .week-sub { font-size: 12px; margin-top: 2px; }
-    .week-badge { font-size: 15px; font-weight: 700; color: var(--primary-light); }
-    .week-arrow { color: var(--text-muted); font-size: 14px; margin-left: 8px; }
-    .week-body { border-top: 1px solid var(--border); padding: 12px 14px; display: none; }
-    .week-body.open { display: block; }
-
-    /* SHIFT ROW */
-    .sr { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-    .sr:last-of-type { border-bottom: none; }
-    .sr-left { flex: 1; }
-    .sr-date { font-weight: 500; }
-    .sr-time { color: var(--text-muted); font-size: 12px; margin-top: 1px; }
-    .sr-amt { font-weight: 700; color: var(--text); margin-right: 8px; }
-    .del-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 4px; line-height: 1; }
-    .del-btn:hover, .del-btn:active { color: var(--error); background: #45090920; }
-
-    /* INFO ROWS */
-    .ir { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; font-size: 14px; border-bottom: 1px solid var(--border); }
-    .ir:last-child { border-bottom: none; }
-    .ir-l { color: var(--text-dim); }
-    .ir-v { font-weight: 600; }
-
-    /* VERIFY RESULT */
-    .vr { border-radius: var(--rs); padding: 20px 16px; margin-bottom: 16px; text-align: center; }
-    .vr.ok { background: #14532d20; border: 1px solid var(--success); }
-    .vr.bad { background: #45090920; border: 1px solid var(--error); }
-    .vr-icon { font-size: 36px; margin-bottom: 8px; }
-    .vr-txt { font-size: 20px; font-weight: 700; }
-    .vr-sub { font-size: 13px; color: var(--text-dim); margin-top: 6px; }
+    .card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px}
 
     /* PROGRESS */
-    .pbar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-top: 8px; }
-    .pfill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); border-radius: 3px; }
+    .pbar{height:4px;background:var(--s3);border-radius:2px;overflow:hidden;margin-top:8px}
+    .pfill{height:100%;background:linear-gradient(90deg,var(--p),var(--pl));border-radius:2px;transition:width .5s ease}
 
-    /* TIME INPUTS */
-    .time-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    /* FORM */
+    .fg{margin-bottom:14px}
+    label{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+    input[type=date],input[type=time],input[type=number],input[type=text],input[type=password],select{
+      width:100%;padding:13px 15px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);
+      color:var(--text);font-size:16px;outline:none;transition:border-color .2s,box-shadow .2s;
+      -webkit-appearance:none;appearance:none;font-variant-numeric:tabular-nums
+    }
+    input:focus,select:focus{border-color:var(--pl);box-shadow:0 0 0 3px var(--glow2)}
+    input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+    input[type=number]{-moz-appearance:textfield}
+    select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234b5563' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+
+    /* BUTTONS */
+    .btn{width:100%;padding:15px;border:none;border-radius:var(--rs);font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.01em;transition:opacity .15s,transform .1s,box-shadow .2s}
+    .btn:active{transform:scale(.97)}
+    .btn:disabled{opacity:.4;cursor:not-allowed}
+    .btn-primary{background:linear-gradient(135deg,var(--pd),var(--p),var(--pl));color:#fff;box-shadow:0 4px 24px rgba(109,40,217,.35)}
+    .btn-primary:hover{box-shadow:0 6px 32px rgba(109,40,217,.5)}
+    .btn-secondary{background:var(--s2);color:var(--dim);border:1px solid var(--border)}
+    .btn-danger{background:var(--errd);color:var(--err);border:1px solid rgba(239,68,68,.3)}
+    .btn-sm{padding:9px 16px;font-size:14px;width:auto;border-radius:8px}
+
+    /* CALC PREVIEW */
+    .calc{background:var(--s2);border:1px solid var(--bpurple);border-radius:var(--rs);padding:16px;margin-bottom:16px}
+    .cr{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:14px;color:var(--dim)}
+    .cr span:last-child{color:var(--text);font-weight:500}
+    .cr.total{border-top:1px solid var(--border);margin-top:10px;padding-top:14px;font-size:22px;font-weight:800;color:var(--text)}
+    .cr.total span:last-child{color:var(--pl);filter:drop-shadow(0 0 10px rgba(167,139,250,.4))}
+
+    /* BADGE */
+    .badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block}
+    .b-sun{background:rgba(109,40,217,.2);color:var(--acc);border:1px solid rgba(109,40,217,.3)}
+    .b-hol{background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.2)}
+    .b-norm{background:var(--s3);color:var(--muted);border:1px solid var(--border)}
+
+    /* WEEK ITEMS */
+    .wk{background:var(--s1);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:8px;overflow:hidden;transition:border-color .2s}
+    .wk.open{border-color:var(--bpurple)}
+    .wk-hdr{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;user-select:none;transition:background .15s}
+    .wk-hdr:active{background:var(--s2)}
+    .wk-title{font-size:14px;font-weight:600;letter-spacing:-.01em}
+    .wk-sub{font-size:12px;margin-top:2px}
+    .wk-right{display:flex;align-items:center;gap:10px}
+    .wk-amt{font-size:16px;font-weight:800;color:var(--pl)}
+    .wk-arr{color:var(--muted);font-size:12px;transition:transform .2s}
+    .wk.open .wk-arr{transform:rotate(90deg)}
+    .wk-body{border-top:1px solid var(--border);padding:12px 16px;display:none}
+    .wk-body.open{display:block}
+
+    /* SHIFT ROW */
+    .sr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+    .sr:last-of-type{border-bottom:none}
+    .sr-l{flex:1;min-width:0}
+    .sr-date{font-weight:500}
+    .sr-time{color:var(--muted);font-size:12px;margin-top:2px}
+    .sr-r{display:flex;align-items:center;gap:6px;flex-shrink:0}
+    .sr-amt{font-weight:700;font-size:14px}
+    .del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:4px 7px;border-radius:6px;line-height:1;transition:color .15s,background .15s}
+    .del:hover,.del:active{color:var(--err);background:var(--errd)}
+
+    /* INFO ROWS */
+    .ir{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:14px;border-bottom:1px solid var(--border)}
+    .ir:last-child{border-bottom:none}
+    .ir-l{color:var(--dim)}
+    .ir-v{font-weight:600}
+
+    /* VERIFY RESULT */
+    .vres{border-radius:var(--rs);padding:22px 16px;margin-bottom:16px;text-align:center}
+    .vres.ok{background:var(--okd);border:1px solid rgba(34,197,94,.3)}
+    .vres.bad{background:var(--errd);border:1px solid rgba(239,68,68,.3)}
+    .vres-icon{font-size:40px;margin-bottom:10px}
+    .vres-txt{font-size:22px;font-weight:800;letter-spacing:-.02em}
+    .vres-sub{font-size:13px;color:var(--dim);margin-top:8px;line-height:1.5}
+
+    /* TIME ROW */
+    .time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
     /* TOAST */
-    #toasts { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 999; display: flex; flex-direction: column; gap: 8px; max-width: 440px; width: calc(100% - 32px); pointer-events: none; }
-    .toast { padding: 12px 16px; border-radius: var(--rs); font-size: 14px; font-weight: 500; animation: tslide .3s ease; pointer-events: all; }
-    .t-ok { background: #14532d; border: 1px solid var(--success); color: #bbf7d0; }
-    .t-err { background: #450a0a; border: 1px solid var(--error); color: #fca5a5; }
-    .t-info { background: var(--primary-dim); border: 1px solid var(--primary); color: #e9d5ff; }
-    @keyframes tslide { from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)} }
+    #toasts{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;max-width:440px;width:calc(100% - 32px);pointer-events:none}
+    .toast{padding:12px 16px;border-radius:var(--rs);font-size:14px;font-weight:500;animation:tslide .25s ease;pointer-events:all;backdrop-filter:blur(12px)}
+    .t-ok{background:rgba(21,128,61,.9);border:1px solid rgba(34,197,94,.3);color:#bbf7d0}
+    .t-err{background:rgba(127,29,29,.9);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+    .t-info{background:rgba(76,29,149,.9);border:1px solid rgba(109,40,217,.4);color:#e9d5ff}
+    @keyframes tslide{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 
     /* ONBOARDING */
-    .ob-wrap { position: fixed; inset: 0; background: var(--bg); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
-    .ob-logo { font-size: 52px; margin-bottom: 16px; }
-    .ob-title { font-size: 26px; font-weight: 800; text-align: center; background: linear-gradient(135deg, var(--primary-light), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
-    .ob-sub { font-size: 14px; color: var(--text-muted); text-align: center; margin-bottom: 32px; }
-    .ob-form { width: 100%; max-width: 380px; }
+    .ob{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+    .ob-glow{position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(109,40,217,.15) 0%,transparent 70%);pointer-events:none}
+    .ob-icon{font-size:56px;margin-bottom:20px;filter:drop-shadow(0 0 20px rgba(167,139,250,.4))}
+    .ob-title{font-size:28px;font-weight:800;letter-spacing:-.03em;text-align:center;background:linear-gradient(135deg,var(--pl),var(--acc));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+    .ob-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:36px;line-height:1.6}
+    .ob-form{width:100%;max-width:380px}
 
     /* LOADING */
-    .loading { position: fixed; inset: 0; background: var(--bg); z-index: 150; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
-    .spinner { width: 38px; height: 38px; border: 3px solid var(--border); border-top-color: var(--primary-light); border-radius: 50%; animation: spin .8s linear infinite; }
-    @keyframes spin { to{transform:rotate(360deg)} }
+    .loading{position:fixed;inset:0;background:var(--bg);z-index:150;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+    .spinner{width:40px;height:40px;border:2px solid var(--border);border-top-color:var(--pl);border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* SETUP LINK */
+    .setup-box{background:var(--s2);border:1px solid var(--bpurple);border-radius:var(--rs);padding:14px;margin-top:12px;word-break:break-all;font-size:12px;color:var(--acc);font-family:monospace;line-height:1.6;user-select:all;cursor:text}
 
     /* MISC */
-    .sec-title { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin: 20px 0 10px; }
-    .c-dim { color: var(--text-dim); }
-    .c-muted { color: var(--text-muted); }
-    .c-ok { color: var(--success); }
-    .c-err { color: var(--error); }
-    .c-warn { color: var(--warning); }
-    .c-purple { color: var(--primary-light); }
-    .fw7 { font-weight: 700; }
-    .mt8 { margin-top: 8px; }
-    .mt16 { margin-top: 16px; }
-    .mb8 { margin-bottom: 8px; }
-    .mb16 { margin-bottom: 16px; }
-    .hr { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
-    .small { font-size: 12px; }
-    .empty-state { text-align: center; color: var(--text-muted); padding: 32px 0; font-size: 14px; }
+    .sec{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:22px 0 10px}
+    .c-ok{color:var(--ok)}
+    .c-err{color:var(--err)}
+    .c-warn{color:var(--warn)}
+    .c-purple{color:var(--pl)}
+    .c-dim{color:var(--dim)}
+    .c-muted{color:var(--muted)}
+    .fw8{font-weight:800}
+    .small{font-size:12px}
+    .mt8{margin-top:8px}
+    .mt12{margin-top:12px}
+    .mb12{margin-bottom:12px}
+    .mb16{margin-bottom:16px}
+    .hr{border:none;border-top:1px solid var(--border);margin:14px 0}
+    .empty{text-align:center;color:var(--muted);padding:36px 0;font-size:14px;line-height:2}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .copy-btn{background:var(--s3);border:1px solid var(--border);color:var(--pl);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:background .15s}
+    .copy-btn:hover{background:var(--bpurple)}
   </style>
 </head>
 <body>
@@ -179,293 +204,239 @@
 (() => {
   'use strict';
 
-  // ── CONSTANTS ─────────────────────────────────────────────────
-  const REPO = 'emmezeta-zarada';
-  const FILE = 'data.json';
-  const GH   = 'https://api.github.com';
+  // ── CONFIG ─────────────────────────────────────────────────────
+  const REPO  = 'emmezeta-zarada';
+  const FILE  = 'data.json';
+  const GH    = 'https://api.github.com';
+  const APP_URL = 'https://matijawork.github.io/emmezeta-zarada/';
   const START = '2026-06-15';
   const END   = '2026-09-30';
   const HOLIDAYS = new Set(['2026-08-05', '2026-08-15']);
-  const DAYS = ['ned','pon','uto','sri','čet','pet','sub'];
-  const MONTHS = ['sij','velj','ožu','tra','svi','lip','srp','kol','ruj','lis','stu','pro'];
+  const DAYS  = ['ned','pon','uto','sri','čet','pet','sub'];
+  const MONTHS= ['sij','velj','ožu','tra','svi','lip','srp','kol','ruj','lis','stu','pro'];
 
-  // ── STATE ──────────────────────────────────────────────────────
+  // ── STATE ─────────────────────────────────────────────────────
   let S = {
     view: 'dashboard',
-    data: null,
-    sha: null,
-    syncing: false,
-    syncErr: false,
+    data: null, sha: null,
+    syncing: false, syncErr: false,
     openWeeks: new Set(),
-    // entry form
-    eDate: todayStr(),
-    eStart: '07:00',
-    eEnd: '15:00',
-    // verify form
-    vWeek: '',
-    vInput: '',
+    eDate: todayStr(), eStart: '07:00', eEnd: '15:00',
+    vWeek: '', vInput: '',
+    setupLink: '',
   };
-
   let saveTimer = null;
 
-  // ── PURE UTILS ─────────────────────────────────────────────────
+  // ── UTILS ────────────────────────────────────────────────────
   function todayStr() {
     return new Date().toISOString().split('T')[0];
   }
-
-  function money(x) {
-    return Math.round(x * 100) / 100;
-  }
-
-  function fmt(n) {
-    return n.toFixed(2).replace('.', ',');
-  }
+  function money(x) { return Math.round(x * 100) / 100; }
+  function fmt(n)   { return n.toFixed(2).replace('.', ','); }
 
   function calcHours(start, end) {
-    const [sh, sm] = start.split(':').map(Number);
-    const [eh, em] = end.split(':').map(Number);
-    let s = sh * 60 + sm;
-    let e = eh * 60 + em;
-    if (e <= s) e += 1440; // midnight crossover
+    const [sh,sm] = start.split(':').map(Number);
+    const [eh,em] = end.split(':').map(Number);
+    let s = sh*60+sm, e = eh*60+em;
+    if (e <= s) e += 1440;
     return (e - s) / 60;
   }
 
-  function isSun(d) { return new Date(d + 'T00:00:00').getDay() === 0; }
-  function isHol(d) { return HOLIDAYS.has(d); }
-  function multiplier(d) { return (isSun(d) || isHol(d)) ? 2 : 1; }
+  function isSun(d)  { return new Date(d+'T00:00:00').getDay() === 0; }
+  function isHol(d)  { return HOLIDAYS.has(d); }
+  function mul(d)    { return (isSun(d)||isHol(d)) ? 2 : 1; }
+  function baseRate(){ return S.data?.config?.hourlyRate ?? 5.31; }
+  function rateFor(d){ return money(baseRate() * mul(d)); }
+  function shiftEarned(sh){ return money(calcHours(sh.startTime,sh.endTime) * rateFor(sh.date)); }
 
-  function baseRate() {
-    return S.data?.config?.hourlyRate ?? 5.31;
-  }
-
-  function rateFor(d) {
-    return money(baseRate() * multiplier(d));
-  }
-
-  function shiftEarned(sh) {
-    return money(calcHours(sh.startTime, sh.endTime) * rateFor(sh.date));
-  }
-
-  function isoWeek(dateStr) {
-    const d = new Date(dateStr + 'T00:00:00');
-    const day = d.getDay() || 7;
-    const thu = new Date(d);
-    thu.setDate(d.getDate() + 4 - day);
-    const jan1 = new Date(thu.getFullYear() + '-01-01T00:00:00');
-    const wn = Math.ceil(((thu - jan1) / 86400000 + 1) / 7);
-    return `${thu.getFullYear()}-W${String(wn).padStart(2, '0')}`;
+  function isoWeek(ds) {
+    const d = new Date(ds+'T00:00:00');
+    const day = d.getDay()||7;
+    const thu = new Date(d); thu.setDate(d.getDate()+4-day);
+    const jan1 = new Date(thu.getFullYear()+'-01-01T00:00:00');
+    return `${thu.getFullYear()}-W${String(Math.ceil(((thu-jan1)/86400000+1)/7)).padStart(2,'0')}`;
   }
 
   function weekMonday(wk) {
-    const [yr, wPart] = wk.split('-W');
-    const wn = parseInt(wPart);
-    // ISO: Jan 4 is always in week 1
-    const jan4 = new Date(`${yr}-01-04T00:00:00`);
-    const dow = jan4.getDay() || 7;
-    const mon = new Date(jan4);
-    mon.setDate(jan4.getDate() - dow + 1 + (wn - 1) * 7);
+    const [yr,wPart]=wk.split('-W'); const wn=parseInt(wPart);
+    const jan4=new Date(`${yr}-01-04T00:00:00`);
+    const dow=jan4.getDay()||7;
+    const mon=new Date(jan4); mon.setDate(jan4.getDate()-dow+1+(wn-1)*7);
     return mon;
   }
 
   function weekLabel(wk) {
-    const mon = weekMonday(wk);
-    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-    const d1 = mon.getDate(), m1 = MONTHS[mon.getMonth()];
-    const d2 = sun.getDate(), m2 = MONTHS[sun.getMonth()];
-    if (mon.getMonth() === sun.getMonth()) return `${d1}.–${d2}. ${m1}`;
-    return `${d1}. ${m1} – ${d2}. ${m2}`;
+    const mon=weekMonday(wk); const sun=new Date(mon); sun.setDate(mon.getDate()+6);
+    const d1=mon.getDate(),m1=MONTHS[mon.getMonth()];
+    const d2=sun.getDate(),m2=MONTHS[sun.getMonth()];
+    return mon.getMonth()===sun.getMonth() ? `${d1}. – ${d2}. ${m1}` : `${d1}. ${m1} – ${d2}. ${m2}`;
   }
 
   function fmtDate(ds) {
-    const d = new Date(ds + 'T00:00:00');
+    const d=new Date(ds+'T00:00:00');
     return `${DAYS[d.getDay()]}, ${d.getDate()}. ${MONTHS[d.getMonth()]}`;
   }
 
-  function allShifts() { return S.data?.shifts ?? []; }
-  function allPayments() { return S.data?.payments ?? []; }
-
-  function totalEarned() { return money(allShifts().reduce((s, sh) => s + shiftEarned(sh), 0)); }
-  function totalPaid()   { return money(allPayments().reduce((s, p) => s + p.amount, 0)); }
-  function cumDebt()     { return money(totalEarned() - totalPaid()); }
-
-  function weekShifts(wk) { return allShifts().filter(s => isoWeek(s.date) === wk); }
-  function weekPayments(wk){ return allPayments().filter(p => p.weekKey === wk); }
-  function weekEarned(wk) { return money(weekShifts(wk).reduce((s, sh) => s + shiftEarned(sh), 0)); }
-  function weekPaid(wk)   { return money(weekPayments(wk).reduce((s, p) => s + p.amount, 0)); }
+  function allShifts()   { return S.data?.shifts   ?? []; }
+  function allPayments() { return S.data?.payments  ?? []; }
+  function totalEarned() { return money(allShifts().reduce((s,sh)=>s+shiftEarned(sh),0)); }
+  function totalPaid()   { return money(allPayments().reduce((s,p)=>s+p.amount,0)); }
+  function cumDebt()     { return money(totalEarned()-totalPaid()); }
+  function weekShifts(wk){ return allShifts().filter(s=>isoWeek(s.date)===wk); }
+  function weekPays(wk)  { return allPayments().filter(p=>p.weekKey===wk); }
+  function weekEarned(wk){ return money(weekShifts(wk).reduce((s,sh)=>s+shiftEarned(sh),0)); }
+  function weekPaid(wk)  { return money(weekPays(wk).reduce((s,p)=>s+p.amount,0)); }
 
   function allWeeks() {
-    const ws = new Set([
-      ...allShifts().map(s => isoWeek(s.date)),
-      ...allPayments().map(p => p.weekKey)
-    ]);
+    const ws=new Set([...allShifts().map(s=>isoWeek(s.date)),...allPayments().map(p=>p.weekKey)]);
     return [...ws].sort();
   }
 
   function workDaysLeft() {
-    const today = new Date(todayStr() + 'T00:00:00');
-    const endD  = new Date(END + 'T00:00:00');
-    let count = 0;
-    const cur = new Date(today); cur.setDate(cur.getDate() + 1);
-    while (cur <= endD) {
-      const day = cur.getDay();
-      if (day !== 0 && day !== 6) {
-        const ds = cur.toISOString().split('T')[0];
-        if (!isHol(ds)) count++;
-      }
-      cur.setDate(cur.getDate() + 1);
+    const today=new Date(todayStr()+'T00:00:00');
+    const endD=new Date(END+'T00:00:00');
+    let count=0;
+    const cur=new Date(today); cur.setDate(cur.getDate()+1);
+    while(cur<=endD){
+      const day=cur.getDay();
+      if(day!==0&&day!==6&&!isHol(cur.toISOString().split('T')[0]))count++;
+      cur.setDate(cur.getDate()+1);
     }
     return count;
   }
 
-  function seasonProgress() {
-    const s = new Date(START + 'T00:00:00');
-    const e = new Date(END   + 'T00:00:00');
-    const t = new Date(todayStr() + 'T00:00:00');
-    const total = (e - s) / 86400000;
-    const passed = Math.max(0, Math.min((t - s) / 86400000, total));
-    return Math.round(passed / total * 100);
+  function seasonPct() {
+    const s=new Date(START+'T00:00:00'),e=new Date(END+'T00:00:00'),t=new Date(todayStr()+'T00:00:00');
+    return Math.round(Math.max(0,Math.min((t-s)/(e-s),1))*100);
   }
 
   function uid() {
-    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
   }
 
-  // ── GITHUB API ─────────────────────────────────────────────────
-  const pat   = () => localStorage.getItem('gh_pat')   || '';
-  const owner = () => localStorage.getItem('gh_owner') || '';
-  const ghHdr = () => ({
-    'Authorization': `Bearer ${pat()}`,
-    'Accept': 'application/vnd.github+json',
-    'Content-Type': 'application/json'
-  });
+  // ── BASE64URL ─────────────────────────────────────────────────
+  function b64e(str) { return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
+  function b64d(str) { return decodeURIComponent(escape(atob(str.replace(/-/g,'+').replace(/_/g,'/')))); }
 
-  function encodeData(data) {
-    const json = JSON.stringify(data, null, 2);
-    const bytes = new TextEncoder().encode(json);
-    let bin = '';
-    for (let b of bytes) bin += String.fromCharCode(b);
+  // ── GITHUB API ────────────────────────────────────────────────
+  const pat   = ()=>localStorage.getItem('gh_pat')   ||'';
+  const owner = ()=>localStorage.getItem('gh_owner') ||'';
+  const hdr   = ()=>({'Authorization':`Bearer ${pat()}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'});
+
+  function encData(data) {
+    const bytes=new TextEncoder().encode(JSON.stringify(data,null,2));
+    let bin=''; for(let b of bytes) bin+=String.fromCharCode(b);
     return btoa(bin);
   }
-
-  function decodeContent(base64) {
-    const bin = atob(base64.replace(/\n/g, ''));
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  function decData(b64) {
+    const bin=atob(b64.replace(/\n/g,''));
+    const bytes=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
     return JSON.parse(new TextDecoder().decode(bytes));
   }
 
   async function ghLoad() {
-    const url = `${GH}/repos/${owner()}/${REPO}/contents/${FILE}`;
-    const r = await fetch(url, { headers: ghHdr() });
-    if (r.status === 404) return null;
-    if (!r.ok) throw new Error(`GitHub ${r.status}: ${r.statusText}`);
-    const j = await r.json();
-    S.sha = j.sha;
-    return decodeContent(j.content);
+    const r=await fetch(`${GH}/repos/${owner()}/${REPO}/contents/${FILE}`,{headers:hdr()});
+    if(r.status===404) return null;
+    if(!r.ok) throw new Error(`GitHub ${r.status}`);
+    const j=await r.json(); S.sha=j.sha;
+    return decData(j.content);
   }
 
   async function ghWrite(data) {
-    const url = `${GH}/repos/${owner()}/${REPO}/contents/${FILE}`;
-    // Always fetch fresh SHA
-    try {
-      const check = await fetch(url, { headers: ghHdr() });
-      if (check.ok) { const j = await check.json(); S.sha = j.sha; }
-    } catch {}
-
-    const body = { message: `sync ${new Date().toISOString()}`, content: encodeData(data) };
-    if (S.sha) body.sha = S.sha;
-
-    const r = await fetch(url, { method: 'PUT', headers: ghHdr(), body: JSON.stringify(body) });
-    if (!r.ok) {
-      const err = await r.json().catch(() => ({}));
-      throw new Error(err.message || `GitHub write ${r.status}`);
-    }
-    const j = await r.json();
-    S.sha = j.content.sha;
+    const url=`${GH}/repos/${owner()}/${REPO}/contents/${FILE}`;
+    try{ const c=await fetch(url,{headers:hdr()}); if(c.ok){const j=await c.json();S.sha=j.sha;} }catch{}
+    const body={message:`sync ${new Date().toISOString()}`,content:encData(data)};
+    if(S.sha) body.sha=S.sha;
+    const r=await fetch(url,{method:'PUT',headers:hdr(),body:JSON.stringify(body)});
+    if(!r.ok){const e=await r.json().catch(()=>({})); throw new Error(e.message||`Write ${r.status}`);}
+    S.sha=(await r.json()).content.sha;
   }
 
   async function ghCreateRepo() {
-    const r = await fetch(`${GH}/user/repos`, {
-      method: 'POST', headers: ghHdr(),
-      body: JSON.stringify({ name: REPO, private: false, description: 'Emmezeta zarada tracker 2026', auto_init: false })
-    });
-    if (!r.ok && r.status !== 422) throw new Error(`Kreiranje repo: ${r.status}`);
+    const r=await fetch(`${GH}/user/repos`,{method:'POST',headers:hdr(),body:JSON.stringify({name:REPO,private:false,description:'Emmezeta zarada tracker 2026',auto_init:false})});
+    if(!r.ok&&r.status!==422) throw new Error(`Repo create ${r.status}`);
   }
 
   function scheduleSave() {
-    if (saveTimer) clearTimeout(saveTimer);
-    saveTimer = setTimeout(async () => {
-      if (!S.data) return;
-      S.syncing = true; S.syncErr = false; updateDot();
-      try {
+    if(saveTimer) clearTimeout(saveTimer);
+    saveTimer=setTimeout(async()=>{
+      if(!S.data) return;
+      S.syncing=true; S.syncErr=false; updateDot();
+      try{
         await ghWrite(S.data);
-        S.syncing = false; updateDot();
-      } catch (e) {
-        S.syncing = false; S.syncErr = true; updateDot();
-        localStorage.setItem('offline_data', JSON.stringify(S.data));
-        toast('Sync greška — lokalno sačuvano: ' + e.message, 'err');
+        S.syncing=false; updateDot();
+      }catch(e){
+        S.syncing=false; S.syncErr=true; updateDot();
+        localStorage.setItem('ez_offline',JSON.stringify(S.data));
+        toast('Sync greška — lokalno sačuvano: '+e.message,'err');
       }
-    }, 1000);
+    },1000);
   }
 
   function updateDot() {
-    const el = document.getElementById('sdot');
-    if (!el) return;
-    el.className = 'sync-dot' + (S.syncing ? ' syncing' : S.syncErr ? ' error' : '');
+    const el=document.getElementById('sdot');
+    if(el) el.className='sdot'+(S.syncing?' syncing':S.syncErr?' err':'');
   }
 
-  // ── TOAST ─────────────────────────────────────────────────────
-  function toast(msg, type = 'info') {
-    const c = document.getElementById('toasts');
-    const el = document.createElement('div');
-    el.className = `toast t-${type === 'err' ? 'err' : type === 'ok' ? 'ok' : 'info'}`;
-    el.textContent = msg;
-    c.appendChild(el);
-    setTimeout(() => { el.style.transition = 'opacity .3s'; el.style.opacity = '0'; }, 3000);
-    setTimeout(() => el.remove(), 3400);
+  // ── TOAST ────────────────────────────────────────────────────
+  function toast(msg,type='info'){
+    const c=document.getElementById('toasts');
+    const el=document.createElement('div');
+    el.className=`toast t-${type==='err'?'err':type==='ok'?'ok':'info'}`;
+    el.textContent=msg; c.appendChild(el);
+    setTimeout(()=>{el.style.transition='opacity .3s';el.style.opacity='0';},3000);
+    setTimeout(()=>el.remove(),3400);
   }
 
-  // ── INIT ──────────────────────────────────────────────────────
-  async function init() {
-    if (!pat() || !owner()) { renderOnboarding(); return; }
+  // ── INIT ────────────────────────────────────────────────────
+  async function init(){
+    // Auto-setup via URL hash: #setup-OWNER_B64-TOKEN_B64
+    const hash=location.hash;
+    if(hash.startsWith('#setup-')){
+      try{
+        const parts=hash.slice(7).split('-');
+        if(parts.length>=2){
+          const o=b64d(parts[0]), t=b64d(parts.slice(1).join('-'));
+          localStorage.setItem('gh_owner',o);
+          localStorage.setItem('gh_pat',t);
+          history.replaceState(null,'',location.pathname);
+          toast('Uređaj spojen!','ok');
+        }
+      }catch(e){console.warn('Setup parse fail',e);}
+    }
+
+    if(!pat()||!owner()){renderOnboarding();return;}
+
     renderLoading();
-    try {
-      let data = await ghLoad();
-      if (!data) {
+    try{
+      let data=await ghLoad();
+      if(!data){
         await ghCreateRepo();
-        data = defaultData();
+        data=defaultData();
         await ghWrite(data);
       }
-      S.data = data;
-      // Merge offline if any
-      const off = localStorage.getItem('offline_data');
-      if (off) {
-        try { S.data = JSON.parse(off); localStorage.removeItem('offline_data'); await ghWrite(S.data); }
-        catch {}
-      }
-    } catch (e) {
-      toast('Greška: ' + e.message, 'err');
-      const off = localStorage.getItem('offline_data');
-      S.data = off ? JSON.parse(off) : defaultData();
-      S.syncErr = true;
-      if (off) toast('Offline podaci učitani', 'info');
+      S.data=data;
+      const off=localStorage.getItem('ez_offline');
+      if(off){ try{S.data=JSON.parse(off);localStorage.removeItem('ez_offline');await ghWrite(S.data);}catch{} }
+    }catch(e){
+      toast('Greška: '+e.message,'err');
+      const off=localStorage.getItem('ez_offline');
+      S.data=off?JSON.parse(off):defaultData(); S.syncErr=true;
+      if(off) toast('Offline podaci učitani','info');
     }
     renderApp();
   }
 
-  function defaultData() {
-    return { config: { hourlyRate: 5.31, ownerName: '' }, shifts: [], payments: [] };
+  function defaultData(){ return {config:{hourlyRate:5.31,ownerName:''},shifts:[],payments:[]}; }
+
+  // ── RENDER ─────────────────────────────────────────────────
+  function renderLoading(){
+    document.getElementById('app').innerHTML=`<div class="loading"><div class="spinner"></div><div class="c-dim small">Učitavam podatke...</div></div>`;
   }
 
-  // ── RENDER ENGINE ─────────────────────────────────────────────
-  function renderLoading() {
-    document.getElementById('app').innerHTML =
-      `<div class="loading"><div class="spinner"></div><div class="c-dim">Učitavam...</div></div>`;
-  }
-
-  function renderApp() {
-    document.getElementById('app').innerHTML = `
+  function renderApp(){
+    document.getElementById('app').innerHTML=`
       <main id="mc"></main>
       <nav>
         <button onclick="go('dashboard')" id="nb-dashboard">${iDash()}<span>Pregled</span></button>
@@ -476,462 +447,347 @@
     renderView();
   }
 
-  window.go = function(view) { S.view = view; renderView(); };
+  window.go=function(v){S.view=v;renderView();};
 
-  function renderView() {
-    const mc = document.getElementById('mc');
-    if (!mc) return;
-    ['dashboard','entry','verify','settings'].forEach(v => {
-      const b = document.getElementById('nb-' + v);
-      if (b) b.classList.toggle('active', v === S.view);
+  function renderView(){
+    const mc=document.getElementById('mc'); if(!mc) return;
+    ['dashboard','entry','verify','settings'].forEach(v=>{
+      const b=document.getElementById('nb-'+v);
+      if(b) b.classList.toggle('active',v===S.view);
     });
-    const map = { dashboard: vDashboard, entry: vEntry, verify: vVerify, settings: vSettings };
-    mc.innerHTML = map[S.view]();
+    const views={dashboard:vDash,entry:vEntry,verify:vVerify,settings:vSettings};
+    mc.innerHTML=views[S.view]();
   }
 
-  // ── DASHBOARD ─────────────────────────────────────────────────
-  function vDashboard() {
-    const earned = totalEarned();
-    const paid   = totalPaid();
-    const debt   = cumDebt();
-    const pct    = seasonProgress();
-    const wdays  = workDaysLeft();
-    const weeks  = allWeeks().slice().reverse();
-
-    const debtClass = debt === 0 ? 'zero' : '';
-    const debtSub = debt === 0 ? '✓ Sve isplaćeno!'
-      : debt < 0 ? '⚠️ Preplaćeno!'
-      : 'Iznos koji roditelji duguju';
-
+  // ── DASHBOARD ───────────────────────────────────────────────
+  function vDash(){
+    const earned=totalEarned(),paid=totalPaid(),debt=cumDebt();
+    const pct=seasonPct(),left=workDaysLeft();
+    const weeks=allWeeks().slice().reverse();
+    const sub=debt===0?'✓ Sve isplaćeno!':debt<0?'⚠️ Preplaćeno':'Iznos koji roditelji duguju';
+    const debtCls=debt===0?'zero':'';
     return `
       <div class="hdr">
         <h1>💼 Emmezeta 2026</h1>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span class="c-muted small">${S.data?.config?.ownerName || ''}</span>
-          <div class="sync-dot${S.syncErr ? ' error' : ''}" id="sdot"></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="small c-muted">${S.data?.config?.ownerName||''}</span>
+          <div class="sdot${S.syncErr?' err':''}" id="sdot"></div>
         </div>
       </div>
 
-      <div class="debt-hero">
-        <div class="debt-hero-label">Dug roditelja</div>
-        <div class="debt-hero-amount ${debtClass}">€${fmt(debt)}</div>
-        <div class="debt-hero-sub ${debt < 0 ? 'c-warn' : ''}">${debtSub}</div>
+      <div class="hero">
+        <div class="hero-label">Dug roditelja</div>
+        <div class="hero-amt ${debtCls}">€${fmt(debt)}</div>
+        <div class="hero-sub ${debt<0?'c-warn':''}">${sub}</div>
       </div>
 
-      <div class="stats-grid">
+      <div class="grid2">
         <div class="stat">
-          <div class="clabel">Zarađeno</div>
+          <div class="stat-label">Zarađeno</div>
           <div class="stat-val earned">€${fmt(earned)}</div>
         </div>
         <div class="stat">
-          <div class="clabel">Isplaćeno</div>
+          <div class="stat-label">Isplaćeno</div>
           <div class="stat-val paid">€${fmt(paid)}</div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="clabel">Sezona</div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
-          <span class="c-dim">15.6. – 30.9.2026</span>
-          <span class="c-purple fw7">${pct}%</span>
+      <div class="card mb12">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+          <span class="c-dim">Sezona 15.6. – 30.9.2026</span>
+          <span class="c-purple fw8">${pct}%</span>
         </div>
         <div class="pbar"><div class="pfill" style="width:${pct}%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-top:8px;">
-          <span>Prošlo: ${pct}% sezone</span>
-          <span>Preostalo: ${wdays} radnih dana</span>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:8px;">
+          <span>Prošlo ${pct}%</span><span>${left} radnih dana preostalo</span>
         </div>
       </div>
 
-      <div class="sec-title">Tjedni pregled</div>
-      ${weeks.length === 0
-        ? '<div class="empty-state">Nema smjena.<br>Dodaj prvu u <b>Unos</b>.</div>'
-        : weeks.map(wk => wkItem(wk)).join('')}
-    `;
+      <div class="sec">Tjedni pregled</div>
+      ${weeks.length===0
+        ?'<div class="empty">Nema smjena.<br>Dodaj prvu u <b>Unos ↓</b></div>'
+        :weeks.map(wk=>wkRow(wk)).join('')}`;
   }
 
-  function wkItem(wk) {
-    const shifts   = weekShifts(wk).slice().sort((a,b) => a.date.localeCompare(b.date));
-    const payments = weekPayments(wk);
-    const earned   = weekEarned(wk);
-    const paid     = weekPaid(wk);
-    const bal      = money(earned - paid);
-    const open     = S.openWeeks.has(wk);
-    const balClass = bal <= 0 ? 'c-ok' : 'c-err';
-    const balTxt   = bal <= 0
-      ? (bal < 0 ? `preplaćeno €${fmt(Math.abs(bal))}` : '✓ isplaćeno')
-      : `dug: €${fmt(bal)}`;
-
+  function wkRow(wk){
+    const shifts=weekShifts(wk).sort((a,b)=>a.date.localeCompare(b.date));
+    const pays=weekPays(wk);
+    const earned=weekEarned(wk),paid=weekPaid(wk),bal=money(earned-paid);
+    const open=S.openWeeks.has(wk);
+    const balCls=bal<=0?'c-ok':'c-err';
+    const balTxt=bal<=0?(bal<0?`preplaćeno €${fmt(Math.abs(bal))}`:'✓ isplaćeno'):`dug: €${fmt(bal)}`;
     return `
-      <div class="week-item">
-        <div class="week-hdr" onclick="toggleWk('${wk}')">
+      <div class="wk${open?' open':''}">
+        <div class="wk-hdr" onclick="toggleWk('${wk}')">
           <div>
-            <div class="week-title">${weekLabel(wk)}</div>
-            <div class="week-sub ${balClass}">${balTxt}</div>
+            <div class="wk-title">${weekLabel(wk)}</div>
+            <div class="wk-sub ${balCls}">${balTxt}</div>
           </div>
-          <div style="display:flex;align-items:center;">
-            <div class="week-badge">€${fmt(earned)}</div>
-            <div class="week-arrow">${open ? '▾' : '▸'}</div>
+          <div class="wk-right">
+            <div class="wk-amt">€${fmt(earned)}</div>
+            <div class="wk-arr">▶</div>
           </div>
         </div>
-        <div class="week-body ${open ? 'open' : ''}">
-          ${shifts.map(s => `
+        <div class="wk-body${open?' open':''}">
+          ${shifts.map(s=>`
             <div class="sr">
-              <div class="sr-left">
-                <div class="sr-date">${fmtDate(s.date)}${isSun(s.date) ? ' <span class="badge b-sun">ned</span>' : ''}${isHol(s.date) ? ' <span class="badge b-hol">blagdan</span>' : ''}</div>
+              <div class="sr-l">
+                <div class="sr-date">${fmtDate(s.date)}${isSun(s.date)?' <span class="badge b-sun">ned</span>':''}${isHol(s.date)?' <span class="badge b-hol">blagdan</span>':''}</div>
                 <div class="sr-time">${s.startTime}–${s.endTime} · ${calcHours(s.startTime,s.endTime).toFixed(2)}h · €${fmt(rateFor(s.date))}/h</div>
               </div>
-              <div style="display:flex;align-items:center;">
+              <div class="sr-r">
                 <div class="sr-amt">€${fmt(shiftEarned(s))}</div>
-                <button class="del-btn" onclick="delShift('${s.id}')">✕</button>
+                <button class="del" onclick="delShift('${s.id}')">✕</button>
               </div>
-            </div>
-          `).join('')}
-          ${payments.map(p => `
-            <div class="sr" style="color:var(--success);">
-              <div class="sr-left">
+            </div>`).join('')}
+          ${pays.map(p=>`
+            <div class="sr" style="color:var(--ok);">
+              <div class="sr-l">
                 <div class="sr-date">💳 Isplata — ${p.date}</div>
-                ${p.note ? `<div class="sr-time">${p.note}</div>` : ''}
+                ${p.note?`<div class="sr-time">${p.note}</div>`:''}
               </div>
-              <div style="display:flex;align-items:center;">
-                <div class="sr-amt">+€${fmt(p.amount)}</div>
-                <button class="del-btn" onclick="delPayment('${p.id}')" style="color:var(--text-muted);">✕</button>
+              <div class="sr-r">
+                <div class="sr-amt fw8">+€${fmt(p.amount)}</div>
+                <button class="del" onclick="delPay('${p.id}')" style="color:var(--muted);">✕</button>
               </div>
-            </div>
-          `).join('')}
+            </div>`).join('')}
           <div class="hr"></div>
-          <div class="ir"><span class="ir-l">Zarađeno:</span><span class="ir-v c-purple">€${fmt(earned)}</span></div>
-          <div class="ir"><span class="ir-l">Isplaćeno:</span><span class="ir-v c-ok">€${fmt(paid)}</span></div>
-          <div class="ir"><span class="ir-l">Tjedni dug:</span><span class="ir-v ${balClass}">€${fmt(bal)}</span></div>
+          <div class="ir"><span class="ir-l">Zarađeno</span><span class="ir-v c-purple">€${fmt(earned)}</span></div>
+          <div class="ir"><span class="ir-l">Isplaćeno</span><span class="ir-v c-ok">€${fmt(paid)}</span></div>
+          <div class="ir"><span class="ir-l">Tjedni dug</span><span class="ir-v ${balCls}">€${fmt(bal)}</span></div>
         </div>
       </div>`;
   }
 
-  window.toggleWk = function(wk) {
-    S.openWeeks.has(wk) ? S.openWeeks.delete(wk) : S.openWeeks.add(wk);
-    renderView();
-  };
-  window.delShift = function(id) {
-    if (!confirm('Obriši ovu smjenu?')) return;
-    S.data.shifts = S.data.shifts.filter(s => s.id !== id);
-    scheduleSave(); renderView();
-  };
-  window.delPayment = function(id) {
-    if (!confirm('Obriši ovu isplatu?')) return;
-    S.data.payments = S.data.payments.filter(p => p.id !== id);
-    scheduleSave(); renderView();
-  };
+  window.toggleWk=function(wk){S.openWeeks.has(wk)?S.openWeeks.delete(wk):S.openWeeks.add(wk);renderView();};
+  window.delShift=function(id){if(!confirm('Obriši smjenu?'))return;S.data.shifts=S.data.shifts.filter(s=>s.id!==id);scheduleSave();renderView();};
+  window.delPay=function(id){if(!confirm('Obriši isplatu?'))return;S.data.payments=S.data.payments.filter(p=>p.id!==id);scheduleSave();renderView();};
 
-  // ── ENTRY ─────────────────────────────────────────────────────
-  function vEntry() {
-    const d  = S.eDate;
-    const st = S.eStart;
-    const en = S.eEnd;
-    const h  = calcHours(st, en);
-    const r  = rateFor(d);
-    const earned = money(h * r);
-    const mul = multiplier(d);
-
-    let dayBadge = isSun(d) ? '<span class="badge b-sun">Nedjelja ×2</span>'
-      : isHol(d) ? '<span class="badge b-hol">Blagdan ×2</span>'
-      : '<span class="badge b-norm">Radni dan</span>';
-
-    const todayShifts = allShifts().filter(s => s.date === d)
-      .sort((a,b) => a.startTime.localeCompare(b.startTime));
-
+  // ── ENTRY ──────────────────────────────────────────────────
+  function vEntry(){
+    const d=S.eDate,st=S.eStart,en=S.eEnd;
+    const h=calcHours(st,en),r=rateFor(d),earned=money(h*r),m=mul(d);
+    const badge=isSun(d)?'<span class="badge b-sun">Nedjelja ×2</span>':isHol(d)?'<span class="badge b-hol">Blagdan ×2</span>':'<span class="badge b-norm">Radni dan</span>';
+    const todayShifts=allShifts().filter(s=>s.date===d).sort((a,b)=>a.startTime.localeCompare(b.startTime));
     return `
       <div class="hdr"><h1>Nova smjena</h1></div>
-
       <div class="fg">
         <label>Datum</label>
         <input type="date" value="${d}" min="${START}" max="${END}" oninput="eSet('date',this.value)">
-        <div class="mt8">${dayBadge}</div>
+        <div class="mt8">${badge}</div>
       </div>
-
       <div class="fg">
         <div class="time-row">
-          <div>
-            <label>Početak</label>
-            <input type="time" value="${st}" oninput="eSet('start',this.value)">
-          </div>
-          <div>
-            <label>Kraj</label>
-            <input type="time" value="${en}" oninput="eSet('end',this.value)">
-          </div>
+          <div><label>Početak</label><input type="time" value="${st}" oninput="eSet('start',this.value)"></div>
+          <div><label>Kraj</label><input type="time" value="${en}" oninput="eSet('end',this.value)"></div>
         </div>
       </div>
-
-      <div class="calc-preview">
-        <div class="cr"><span class="c-dim">Sati</span><span>${h.toFixed(2)} h</span></div>
-        <div class="cr"><span class="c-dim">Satnica${mul > 1 ? ` (×${mul})` : ''}</span><span>€${fmt(r)}/h</span></div>
+      <div class="calc">
+        <div class="cr"><span>Sati</span><span>${h.toFixed(2)} h</span></div>
+        <div class="cr"><span>Satnica${m>1?` ×${m}`:''}</span><span>€${fmt(r)}/h</span></div>
         <div class="cr total"><span>Zarada</span><span>€${fmt(earned)}</span></div>
       </div>
-
       <button class="btn btn-primary mb16" onclick="saveEntry()">Spremi smjenu</button>
-
-      ${todayShifts.length > 0 ? `
-        <div class="sec-title">Smjene ${fmtDate(d)}</div>
-        ${todayShifts.map(s => `
+      ${todayShifts.length?`
+        <div class="sec">Smjene za ${fmtDate(d)}</div>
+        ${todayShifts.map(s=>`
           <div class="sr">
-            <div class="sr-left">
-              <div class="sr-time">${s.startTime}–${s.endTime} · ${calcHours(s.startTime,s.endTime).toFixed(2)}h</div>
-            </div>
-            <div style="display:flex;align-items:center;">
-              <div class="sr-amt">€${fmt(shiftEarned(s))}</div>
-              <button class="del-btn" onclick="delShift('${s.id}')">✕</button>
-            </div>
-          </div>
-        `).join('')}
-      ` : ''}
-    `;
+            <div class="sr-l"><div class="sr-time">${s.startTime}–${s.endTime} · ${calcHours(s.startTime,s.endTime).toFixed(2)}h</div></div>
+            <div class="sr-r"><div class="sr-amt">€${fmt(shiftEarned(s))}</div><button class="del" onclick="delShift('${s.id}')">✕</button></div>
+          </div>`).join('')}`:''}`;
   }
 
-  window.eSet = function(field, val) {
-    if (field === 'date')  S.eDate  = val;
-    if (field === 'start') S.eStart = val;
-    if (field === 'end')   S.eEnd   = val;
-    renderView();
+  window.eSet=function(f,v){if(f==='date')S.eDate=v;if(f==='start')S.eStart=v;if(f==='end')S.eEnd=v;renderView();};
+  window.saveEntry=function(){
+    const{eDate:date,eStart:startTime,eEnd:endTime}=S;
+    if(!date||!startTime||!endTime){toast('Popuni sve','err');return;}
+    const sh={id:uid(),date,startTime,endTime};
+    S.data.shifts.push(sh);
+    S.data.shifts.sort((a,b)=>a.date.localeCompare(b.date)||a.startTime.localeCompare(b.startTime));
+    scheduleSave(); toast(`Dodano €${fmt(shiftEarned(sh))}`,'ok');
+    const next=new Date(date+'T00:00:00'); next.setDate(next.getDate()+1);
+    S.eDate=next.toISOString().split('T')[0]; renderView();
   };
 
-  window.saveEntry = function() {
-    const { eDate: date, eStart: startTime, eEnd: endTime } = S;
-    if (!date || !startTime || !endTime) { toast('Popuni sve podatke', 'err'); return; }
-    const shift = { id: uid(), date, startTime, endTime };
-    S.data.shifts.push(shift);
-    S.data.shifts.sort((a,b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime));
-    scheduleSave();
-    toast(`Dodano €${fmt(shiftEarned(shift))}`, 'ok');
-    // Advance date
-    const next = new Date(date + 'T00:00:00');
-    next.setDate(next.getDate() + 1);
-    S.eDate = next.toISOString().split('T')[0];
-    renderView();
-  };
-
-  // ── VERIFY ────────────────────────────────────────────────────
-  function vVerify() {
-    const weeks = allWeeks();
-    const wk    = S.vWeek || (weeks.length ? weeks[weeks.length - 1] : '');
-    const earned = wk ? weekEarned(wk) : 0;
-    const paid   = wk ? weekPaid(wk)   : 0;
-    const remaining = money(earned - paid);
-    const input  = parseFloat(S.vInput.replace(',', '.')) || 0;
-
-    let result = null;
-    if (S.vInput && input > 0 && wk) {
-      const diff = money(remaining - input);
-      result = { correct: diff === 0, diff, newDebt: money(cumDebt() - input) };
-    }
-
+  // ── VERIFY ─────────────────────────────────────────────────
+  function vVerify(){
+    const weeks=allWeeks();
+    const wk=S.vWeek||(weeks.length?weeks[weeks.length-1]:'');
+    const earned=wk?weekEarned(wk):0,paid=wk?weekPaid(wk):0,rem=money(earned-paid);
+    const inp=parseFloat(S.vInput.replace(',','.'))||0;
+    let res=null;
+    if(S.vInput&&inp>0&&wk){const diff=money(rem-inp);res={ok:diff===0,diff,newDebt:money(cumDebt()-inp)};}
     return `
       <div class="hdr"><h1>Provjeri isplatu</h1></div>
-
       <div class="fg">
         <label>Tjedan</label>
         <select onchange="vSet('week',this.value)">
-          ${weeks.length === 0
-            ? '<option value="">Nema podataka</option>'
-            : weeks.slice().reverse().map(w => `
-              <option value="${w}" ${w === wk ? 'selected' : ''}>${weekLabel(w)} — €${fmt(weekEarned(w))}</option>
-            `).join('')}
+          ${weeks.length===0?'<option value="">Nema podataka</option>':weeks.slice().reverse().map(w=>`<option value="${w}"${w===wk?' selected':''}>${weekLabel(w)} — €${fmt(weekEarned(w))}</option>`).join('')}
         </select>
       </div>
-
-      ${wk ? `
-        <div class="card mb16">
-          <div class="ir"><span class="ir-l">Zarađeno taj tjedan:</span><span class="ir-v c-purple">€${fmt(earned)}</span></div>
-          <div class="ir"><span class="ir-l">Već isplaćeno:</span><span class="ir-v c-ok">€${fmt(paid)}</span></div>
-          <div class="ir"><span class="ir-l">Preostalo za platiti:</span>
-            <span class="ir-v fw7 ${remaining > 0 ? 'c-err' : 'c-ok'}">€${fmt(remaining)}</span></div>
-        </div>
-      ` : ''}
-
+      ${wk?`
+        <div class="card mb12">
+          <div class="ir"><span class="ir-l">Zarađeno taj tjedan</span><span class="ir-v c-purple">€${fmt(earned)}</span></div>
+          <div class="ir"><span class="ir-l">Već isplaćeno</span><span class="ir-v c-ok">€${fmt(paid)}</span></div>
+          <div class="ir"><span class="ir-l">Preostalo za platiti</span><span class="ir-v fw8 ${rem>0?'c-err':'c-ok'}">€${fmt(rem)}</span></div>
+        </div>`:''}
       <div class="fg">
         <label>Iznos koji su roditelji platili (€)</label>
         <input type="number" placeholder="0,00" step="0.01" min="0" value="${S.vInput}"
           oninput="vSet('input',this.value)"
-          style="font-size:28px;text-align:center;padding:16px;font-weight:700;">
+          style="font-size:30px;text-align:center;padding:18px;font-weight:800;letter-spacing:-.02em;">
       </div>
-
-      ${result ? `
-        <div class="vr ${result.correct ? 'ok' : 'bad'}">
-          <div class="vr-icon">${result.correct ? '✅' : '❌'}</div>
-          <div class="vr-txt">
-            ${result.correct ? 'Točno isplaćeno!'
-              : result.diff > 0 ? `Premalo za €${fmt(result.diff)}`
-              : `Previše za €${fmt(Math.abs(result.diff))}`}
-          </div>
-          <div class="vr-sub">
-            Kumulativni dug nakon isplate:
-            <strong style="color:${result.newDebt <= 0 ? 'var(--success)' : 'var(--error)'}">
-              €${fmt(Math.max(0, result.newDebt))}
-            </strong>
-            ${result.newDebt < 0 ? `<br><span class="c-warn">⚠️ Preplaćeno za €${fmt(Math.abs(result.newDebt))}</span>` : ''}
+      ${res?`
+        <div class="vres ${res.ok?'ok':'bad'}">
+          <div class="vres-icon">${res.ok?'✅':'❌'}</div>
+          <div class="vres-txt">${res.ok?'Točno isplaćeno!':res.diff>0?`Premalo za €${fmt(res.diff)}`:`Previše za €${fmt(Math.abs(res.diff))}`}</div>
+          <div class="vres-sub">Kumulativni dug nakon isplate:<br>
+            <strong style="color:${res.newDebt<=0?'var(--ok)':'var(--err)'}">€${fmt(Math.max(0,res.newDebt))}</strong>
+            ${res.newDebt<0?`<br><span class="c-warn">⚠️ Preplaćeno za €${fmt(Math.abs(res.newDebt))}</span>`:''}
           </div>
         </div>
-
-        <button class="btn btn-primary mb16" onclick="recordPay('${wk}',${input})">
-          Evidentiraj isplatu €${fmt(input)}
-        </button>
-      ` : ''}
-
-      <div class="sec-title">Trenutni kumulativni dug</div>
-      <div class="debt-hero" style="padding:16px;">
-        <div class="debt-hero-label">Ukupan dug roditelja</div>
-        <div class="debt-hero-amount ${cumDebt() === 0 ? 'zero' : ''}" style="font-size:36px;">€${fmt(cumDebt())}</div>
-      </div>
-    `;
+        <button class="btn btn-primary mb16" onclick="recPay('${wk}',${inp})">Evidentiraj isplatu €${fmt(inp)}</button>
+      `:''}
+      <div class="sec">Ukupni kumulativni dug</div>
+      <div class="hero" style="padding:18px 16px;">
+        <div class="hero-label">Dug roditelja</div>
+        <div class="hero-amt${cumDebt()===0?' zero':''}" style="font-size:38px;">€${fmt(cumDebt())}</div>
+      </div>`;
   }
 
-  window.vSet = function(field, val) {
-    if (field === 'week')  { S.vWeek = val; S.vInput = ''; }
-    if (field === 'input') S.vInput = val;
-    renderView();
+  window.vSet=function(f,v){if(f==='week'){S.vWeek=v;S.vInput='';}if(f==='input')S.vInput=v;renderView();};
+  window.recPay=function(wk,amount){
+    if(!amount||amount<=0){toast('Unesi valjani iznos','err');return;}
+    S.data.payments.push({id:uid(),date:todayStr(),amount:money(amount),weekKey:wk,note:''});
+    scheduleSave(); S.vInput=''; toast(`Isplata €${fmt(amount)} evidentirana`,'ok'); renderView();
   };
 
-  window.recordPay = function(wk, amount) {
-    if (!amount || amount <= 0) { toast('Unesi valjani iznos', 'err'); return; }
-    const p = { id: uid(), date: todayStr(), amount: money(amount), weekKey: wk, note: '' };
-    S.data.payments.push(p);
-    scheduleSave();
-    S.vInput = '';
-    toast(`Isplata €${fmt(amount)} evidentirana`, 'ok');
-    renderView();
-  };
-
-  // ── SETTINGS ─────────────────────────────────────────────────
-  function vSettings() {
-    const cfg = S.data?.config ?? {};
-    const ghUrl = `https://${owner()}.github.io/${REPO}`;
+  // ── SETTINGS ───────────────────────────────────────────────
+  function vSettings(){
+    const cfg=S.data?.config??{};
+    const link=S.setupLink;
     return `
       <div class="hdr"><h1>Postavke</h1></div>
 
-      <div class="sec-title">Osobni podaci</div>
+      <div class="sec">Osobni podaci</div>
       <div class="card">
-        <div class="fg">
-          <label>Ime</label>
-          <input type="text" id="s-name" value="${cfg.ownerName || ''}" placeholder="Matija">
-        </div>
+        <div class="fg"><label>Ime</label><input type="text" id="s-name" value="${cfg.ownerName||''}" placeholder="Matija"></div>
         <div class="fg">
           <label>Satnica (€/h)</label>
-          <input type="number" id="s-rate" value="${cfg.hourlyRate ?? 5.31}" step="0.01" min="0.01">
+          <input type="number" id="s-rate" value="${cfg.hourlyRate??5.31}" step="0.01" min="0.01">
           <div class="small c-muted mt8">Nedjelja i blagdani automatski ×2</div>
         </div>
         <button class="btn btn-primary" onclick="saveCfg()">Spremi</button>
       </div>
 
-      <div class="sec-title">GitHub Sync</div>
+      <div class="sec">Spajanje uređaja</div>
       <div class="card">
-        <div class="fg">
-          <label>GitHub Username</label>
-          <input type="text" id="s-owner" value="${owner()}" placeholder="username">
+        <div class="c-dim small mb12" style="line-height:1.7;">
+          Generiraj link koji otvoriš na mobitelu — app se automatski spoji na isti GitHub i podatke.
         </div>
-        <div class="fg">
-          <label>Personal Access Token (PAT)</label>
-          <input type="password" id="s-pat" value="${pat()}" placeholder="ghp_...">
-          <div class="small c-muted mt8">GitHub → Settings → Developer settings → Personal access tokens → Fine-grained → repo permissions: Contents (rw)</div>
-        </div>
-        <button class="btn btn-secondary" onclick="saveGH()">Ažuriraj GitHub</button>
+        <button class="btn btn-secondary mb12" onclick="genLink()">Generiraj setup link za mobitel</button>
+        ${link?`
+          <div class="row mb12">
+            <span class="small c-muted">Kopiraj i otvori na mobitelu:</span>
+            <button class="copy-btn" onclick="copyLink()">Kopiraj</button>
+          </div>
+          <div class="setup-box" id="setup-link-box">${link}</div>
+          <div class="small c-warn mt8">⚠️ Link sadrži token — nemoj dijeliti s drugima.</div>
+        `:''}
       </div>
 
-      <div class="sec-title">GitHub Pages</div>
+      <div class="sec">GitHub Sync</div>
       <div class="card">
-        <div class="c-dim small" style="line-height:1.8;">
-          Za pristup s mobitela:<br>
-          1. GitHub → repo <strong>${REPO}</strong><br>
-          2. Settings → Pages<br>
-          3. Source: Deploy from branch → main → /(root)<br>
-          4. URL: <strong style="color:var(--primary-light);">${ghUrl}</strong>
-        </div>
+        <div class="ir"><span class="ir-l">GitHub username</span><span class="ir-v c-purple">${owner()}</span></div>
+        <div class="ir"><span class="ir-l">Repo</span><span class="ir-v small" style="font-family:monospace;">${REPO}</span></div>
+        <div class="ir"><span class="ir-l">App URL</span><span class="ir-v small c-purple" style="font-family:monospace;">matijawork.github.io/…</span></div>
+        <div class="hr"></div>
+        <div class="fg mt8"><label>Promijeni token (ako istekne)</label><input type="password" id="s-pat" placeholder="gho_... ili ghp_..."></div>
+        <button class="btn btn-secondary" onclick="savePat()">Ažuriraj token</button>
       </div>
 
-      <div class="sec-title">Blagdani (×2)</div>
+      <div class="sec">Blagdani (×2)</div>
       <div class="card">
-        ${[...HOLIDAYS].sort().map(h => `
-          <div class="ir"><span class="ir-l">${fmtDate(h)}</span><span class="badge b-hol">×2</span></div>
-        `).join('')}
+        ${[...HOLIDAYS].sort().map(h=>`<div class="ir"><span class="ir-l">${fmtDate(h)}</span><span class="badge b-hol">×2</span></div>`).join('')}
       </div>
 
-      <div class="sec-title" style="color:var(--error);">Zona opasnosti</div>
-      <div class="card" style="border-color:#ef444430;">
+      <div class="sec" style="color:var(--err);">Zona opasnosti</div>
+      <div class="card" style="border-color:rgba(239,68,68,.2);">
         <button class="btn btn-danger" onclick="clearAll()">Obriši sve podatke</button>
-      </div>
-    `;
+      </div>`;
   }
 
-  window.saveCfg = function() {
-    const name = document.getElementById('s-name').value.trim();
-    const rate = parseFloat(document.getElementById('s-rate').value);
-    if (!rate || rate <= 0) { toast('Valjana satnica obvezna', 'err'); return; }
-    S.data.config.ownerName = name;
-    S.data.config.hourlyRate = money(rate);
-    scheduleSave(); toast('Postavke spremljene', 'ok'); renderView();
+  window.saveCfg=function(){
+    const name=document.getElementById('s-name').value.trim();
+    const rate=parseFloat(document.getElementById('s-rate').value);
+    if(!rate||rate<=0){toast('Valjana satnica obvezna','err');return;}
+    S.data.config.ownerName=name; S.data.config.hourlyRate=money(rate);
+    scheduleSave(); toast('Postavke spremljene','ok'); renderView();
   };
 
-  window.saveGH = function() {
-    const o = document.getElementById('s-owner').value.trim();
-    const p = document.getElementById('s-pat').value.trim();
-    if (!o || !p) { toast('Unesi username i PAT', 'err'); return; }
-    localStorage.setItem('gh_owner', o);
-    localStorage.setItem('gh_pat', p);
-    toast('GitHub postavke ažurirane — reloadaj', 'info');
+  window.genLink=function(){
+    const o=owner(),p=pat();
+    if(!o||!p){toast('Nema tokena','err');return;}
+    S.setupLink=APP_URL+'#setup-'+b64e(o)+'-'+b64e(p);
+    renderView();
   };
 
-  window.clearAll = function() {
-    if (!confirm('TRAJNO brišeš sve smjene i isplate!\nJesi li siguran?')) return;
-    if (!confirm('Potvrdi: obriši sve podatke?')) return;
-    S.data = defaultData(); scheduleSave(); toast('Podaci obrisani', 'info'); renderView();
+  window.copyLink=function(){
+    const el=document.getElementById('setup-link-box');
+    if(!el)return;
+    navigator.clipboard.writeText(el.textContent).then(()=>toast('Link kopiran!','ok')).catch(()=>toast('Selektiraj tekst ručno','info'));
   };
 
-  // ── ONBOARDING ───────────────────────────────────────────────
-  function renderOnboarding() {
-    document.getElementById('app').innerHTML = `
-      <div class="ob-wrap">
-        <div class="ob-logo">💼</div>
-        <div class="ob-title">Emmezeta Zarada</div>
-        <div class="ob-sub">Ljetni posao 2026 — tracker zarade i isplata</div>
+  window.savePat=function(){
+    const p=document.getElementById('s-pat').value.trim();
+    if(!p){toast('Unesi token','err');return;}
+    localStorage.setItem('gh_pat',p); toast('Token ažuriran','ok');
+  };
+
+  window.clearAll=function(){
+    if(!confirm('TRAJNO brišeš sve smjene i isplate!'))return;
+    if(!confirm('Potvrdi: Obriši sve?'))return;
+    S.data=defaultData(); scheduleSave(); toast('Podaci obrisani','info'); renderView();
+  };
+
+  // ── ONBOARDING ────────────────────────────────────────────
+  function renderOnboarding(){
+    document.getElementById('app').innerHTML=`
+      <div class="ob">
+        <div class="ob-glow"></div>
+        <div class="ob-icon">💼</div>
+        <div class="ob-title">Emmezeta 2026</div>
+        <div class="ob-sub">Tracker zarade i isplata<br>15. lipnja – 30. rujna 2026.</div>
         <div class="ob-form">
+          <div class="fg"><label>GitHub Username</label><input type="text" id="ob-o" placeholder="matijawork" autocomplete="off" autocapitalize="none"></div>
           <div class="fg">
-            <label>GitHub Username</label>
-            <input type="text" id="ob-owner" placeholder="tvoj-github-username" autocomplete="off" autocapitalize="none">
-          </div>
-          <div class="fg">
-            <label>Personal Access Token (PAT)</label>
-            <input type="password" id="ob-pat" placeholder="ghp_...">
-            <div class="small c-muted mt8">
-              GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens.<br>
-              Permissions: Contents → Read and write
+            <label>GitHub Token (PAT ili OAuth)</label>
+            <input type="password" id="ob-p" placeholder="gho_... ili ghp_...">
+            <div class="small c-muted mt8" style="line-height:1.6;">
+              Laptop: otvori Terminal → ukucaj <code style="background:var(--s2);padding:1px 5px;border-radius:4px;color:var(--acc);">gh auth token</code> → kopiraj output<br>
+              Mobitel: koristi setup link iz Postavki (laptop)
             </div>
           </div>
-          <button class="btn btn-primary" onclick="obConnect()">Poveži s GitHub →</button>
-          <div class="small c-muted mt16 text-center">PAT se sprema samo lokalno, nikad u repo.</div>
+          <button class="btn btn-primary" onclick="obConn()">Spoji →</button>
         </div>
       </div>`;
   }
 
-  window.obConnect = async function() {
-    const o = document.getElementById('ob-owner').value.trim();
-    const p = document.getElementById('ob-pat').value.trim();
-    if (!o || !p) { toast('Unesi i username i PAT', 'err'); return; }
-    localStorage.setItem('gh_owner', o);
-    localStorage.setItem('gh_pat', p);
+  window.obConn=async function(){
+    const o=document.getElementById('ob-o').value.trim();
+    const p=document.getElementById('ob-p').value.trim();
+    if(!o||!p){toast('Unesi i username i token','err');return;}
+    localStorage.setItem('gh_owner',o); localStorage.setItem('gh_pat',p);
     await init();
   };
 
-  // ── ICONS (SVG) ───────────────────────────────────────────────
-  function iDash() {
-    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`;
-  }
-  function iPlus() {
-    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`;
-  }
-  function iCheck() {
-    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>`;
-  }
-  function iGear() {
-    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
-  }
+  // ── ICONS ────────────────────────────────────────────────
+  function iDash(){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>`;}
+  function iPlus(){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`;}
+  function iCheck(){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>`;}
+  function iGear(){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;}
 
-  // ── BOOT ─────────────────────────────────────────────────────
+  // ── BOOT ─────────────────────────────────────────────────
   init();
 })();
 </script>
