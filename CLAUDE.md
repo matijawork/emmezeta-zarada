@@ -1,8 +1,8 @@
 # emmezeta-zarada — Claude Memory
 
 ## Status
-- Zadnja sesija: 2026-06-16
-- Faza: complete (deploy done, cross-device setup done)
+- Zadnja sesija: 2026-06-19 (rework: ručna ×2, satnica 6.56, redizajn unosa) — pushano na main, deployano
+- Faza: complete
 
 ## Što je gotovo
 - [x] Git setup + GitHub public repo (matijawork/emmezeta-zarada)
@@ -17,7 +17,12 @@
 - [x] setup-laptop.sh — auto generira setup URL i otvara browser
 - [x] Postavke: "Generiraj setup link za mobitel" → kopiraj URL → otvori na mobitelu
 - [x] GitHub Pages deploy — https://matijawork.github.io/emmezeta-zarada/
-- [x] Edge cases: smjena preko ponoći, nedjelja ×2, blagdan ×2, offline fallback
+- [x] Satnica 6.56 €/h (rework 2026-06-19)
+- [x] Ručni ×2 toggle po smjeni (shift.double) — maknut auto nedjelja/blagdani ×2
+- [x] Redizajn unosa: brze smjene (chips), Danas/Jučer datum, time pickeri
+- [x] >8h crveno upozorenje (Matija ne smije >8h)
+- [x] Maknut workDaysLeft brojač + Blagdani sekcija + mrtvi CSS/tekst
+- [x] Edge cases: smjena preko ponoći, ručni ×2, offline fallback
 
 ## Otvoreni bugovi / TODO
 - Nema poznatih bugova
