@@ -5,6 +5,13 @@
   },
   "shifts": [],
   "payments": [],
-  "sideIncome": [],
+  "sideIncome": [
+    {
+      "id": "79b3a001-c696-4d1d-9d45-0f6f23d6c47d",
+      "date": "2026-06-24",
+      "amount": 50,
+      "source": "Baustela"
+    }
+  ],
   "expenses": []
 }
