@@ -29,7 +29,7 @@ Repo se zove `emmezeta-zarada` (infra ime), ali app je **generički** — u UI-u
 - **State** `S`: view, data, sha, syncing/syncErr, e* (entry draft), p* (pay), si* (side), cal{open,target,month}, setupLink.
 - **Render**: `renderView()` → `views[S.view]()` u `#mc`. Globalne fn na `window.*` za onclick.
 
-## Viewovi (nav: Pregled / Unos / Isplata / Novac / Postavke)
+## Viewovi (nav redoslijed: Pregled / Unos / Novac / Isplata / Postavke)
 - **dashboard** `vDash`: brand badge (aktovka), hero "Dug roditelja" (`cumDebt`), grid2 Zarađeno/Isplaćeno, "Zarađeno sa strane" stat (ako >0), **"Ukupna zarada"** card = `totalEarned()+totalSide()`. NEMA liste smjena (briše se u Postavkama).
 - **entry** `vEntry`: datum (custom kalendar), preset chipovi, 2× time dropdown (`timeSelects`/`eSetTime`), +50% toggle (`eDouble`), >8h crveno upozorenje, calc preview, "Spremi smjenu", pa **"Sve smjene"** lista (svih smjena desc, ✕ `delShift`).
 - **verify** `vPay`: hero dug, datum, iznos input → live preview `presHTML()` (`pCalc` updejta samo #pres, bez re-rendera = fokus ostaje), lista isplata.
