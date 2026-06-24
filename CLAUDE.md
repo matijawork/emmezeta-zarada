@@ -13,6 +13,9 @@
 - Enter shortcut: si-source→fokus iznos, si-amount→addSide, p-amount→recPay
 - Maknute mrtve funkcije: weekShifts/weekPays/weekEarned/weekPaid/allWeeks/weekMonday/weekLabel/wkRow/toggleWk/recentDays/seasonPct + CSS .qdate/.daypick/.dayc
 - isoWeek() ostaje (recPay piše weekKey za back-compat, ali se ne koristi za prikaz)
+- OWNER='matijawork' FIKSNO (const) — owner() vraća OWNER, ignorira localStorage. Onboarding pita SAMO token. Auth check = samo pat().
+- Postavke "Svi podaci" sekcija: dataBlock(title,items) lista smjene/isplate/strana zarada s ✕ brisanjem (delShift/delPay/delSide). + "Obriši SVE" danger.
+- Globalni shortcuti (u startLive keydown): Esc→closeCal, Enter→submit po viewu (entry:saveEntry, verify:recPay, money:addSide, settings:saveCfg). s-pat→savePat, ob-p ima svoj. Pojedinačni input Enter handleri MAKNUTI (osim ob-p) da se ne dupliciraju.
 
 ## Što je gotovo
 - [x] Git setup + GitHub public repo (matijawork/emmezeta-zarada)

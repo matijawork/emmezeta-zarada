@@ -393,8 +393,9 @@
   function b64d(str) { return decodeURIComponent(escape(atob(str.replace(/-/g,'+').replace(/_/g,'/')))); }
 
   // ── GITHUB API ────────────────────────────────────────────────
-  const pat   = ()=>localStorage.getItem('gh_pat')   ||'';
-  const owner = ()=>localStorage.getItem('gh_owner') ||'';
+  const OWNER = 'matijawork';            // fiksni username — uvijek isti
+  const pat   = ()=>localStorage.getItem('gh_pat') ||'';
+  const owner = ()=>OWNER;
   const hdr   = ()=>({'Authorization':`Bearer ${pat()}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'});
 
   function encData(data) {
@@ -474,6 +475,18 @@
     setInterval(refresh, 20000);
     document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refresh(); });
     window.addEventListener('focus', refresh);
+    // globalni shortcuti: Esc zatvori kalendar, Enter spremi/submit po viewu
+    document.addEventListener('keydown',e=>{
+      if(e.key==='Escape' && S.cal.open){ closeCal(); return; }
+      if(e.key!=='Enter' || S.cal.open) return;
+      const tag=(e.target&&e.target.tagName)||'';
+      if(tag==='SELECT'||tag==='TEXTAREA') return;
+      if(e.target && e.target.id==='s-pat'){ e.preventDefault(); window.savePat(); return; }
+      if(e.target && e.target.id==='ob-p') return;   // onboarding ima svoj handler
+      const map={entry:'saveEntry',verify:'recPay',money:'addSide',settings:'saveCfg'};
+      const fn=map[S.view];
+      if(fn && typeof window[fn]==='function'){ e.preventDefault(); window[fn](); }
+    });
   }
 
   // ── TOAST ────────────────────────────────────────────────────
@@ -739,7 +752,7 @@
         <div class="fg">
           <label>Iznos (€)</label>
           <input type="number" id="p-amount" value="${S.pAmount}" placeholder="0,00" step="0.01" min="0" inputmode="decimal"
-            oninput="pCalc(this.value)" onkeydown="if(event.key==='Enter')recPay()"
+            oninput="pCalc(this.value)"
             style="font-size:30px;text-align:center;padding:18px;font-weight:800;letter-spacing:-.02em;">
         </div>
         <div id="pres">${presHTML()}</div>
@@ -794,12 +807,12 @@
         </div>
         <div class="fg">
           <label>Od kud (izvor)</label>
-          <input type="text" id="si-source" value="${esc(S.siSource)}" placeholder="npr. Baustela" autocomplete="off" oninput="readSide()" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('si-amount').focus();}">
+          <input type="text" id="si-source" value="${esc(S.siSource)}" placeholder="npr. Baustela" autocomplete="off" oninput="readSide()">
           ${sources.length?`<div class="chips mt8">${sources.map((s,i)=>`<button class="chip ${S.siSource.trim()===s?'on':''}" onclick="mSrc(${i})">${esc(s)}</button>`).join('')}</div>`:''}
         </div>
         <div class="fg">
           <label>Iznos (€)</label>
-          <input type="number" id="si-amount" value="${S.siAmount}" placeholder="0,00" step="0.01" min="0" inputmode="decimal" oninput="readSide()" onkeydown="if(event.key==='Enter')addSide()"
+          <input type="number" id="si-amount" value="${S.siAmount}" placeholder="0,00" step="0.01" min="0" inputmode="decimal" oninput="readSide()"
             style="font-size:28px;text-align:center;padding:16px;font-weight:800;letter-spacing:-.02em;">
         </div>
         <button class="btn btn-primary" onclick="addSide()">Dodaj zaradu</button>
@@ -872,10 +885,17 @@
         `:''}
       </div>
 
+      <div class="sec">Svi podaci — pregled i brisanje</div>
+      ${dataBlock('Smjene', allShifts().slice().sort((a,b)=>b.date.localeCompare(a.date)).map(s=>({
+        id:s.id, l:fmtDate(s.date)+(s.double?' +50%':''), s:`${s.startTime}–${s.endTime} · €${fmt(shiftEarned(s))}`, fn:'delShift'})))}
+      ${dataBlock('Isplate', allPayments().slice().sort((a,b)=>b.date.localeCompare(a.date)).map(p=>({
+        id:p.id, l:'💳 '+fmtDate(p.date), s:`€${fmt(p.amount)}`, fn:'delPay'})))}
+      ${dataBlock('Strana zarada', allSide().slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>({
+        id:x.id, l:esc(x.source||'—'), s:`${fmtDate(x.date)} · €${fmt(x.amount)}`, fn:'delSide'})))}
+
       <div class="sec">GitHub Sync</div>
       <div class="card">
-        <div class="ir"><span class="ir-l">GitHub username</span><span class="ir-v c-purple">${owner()}</span></div>
-        <div class="ir"><span class="ir-l">Repo</span><span class="ir-v small" style="font-family:monospace;">${REPO}</span></div>
+        <div class="ir"><span class="ir-l">Repo</span><span class="ir-v small" style="font-family:monospace;">${OWNER}/${REPO}</span></div>
         <div class="ir"><span class="ir-l">App URL</span><span class="ir-v small c-purple" style="font-family:monospace;">matijawork.github.io/…</span></div>
         <div class="hr"></div>
         <div class="fg mt8"><label>Promijeni token (ako istekne)</label><input type="password" id="s-pat" placeholder="gho_... ili ghp_..."></div>
@@ -884,8 +904,19 @@
 
       <div class="sec" style="color:var(--err);">Zona opasnosti</div>
       <div class="card" style="border-color:rgba(239,68,68,.2);">
-        <button class="btn btn-danger" onclick="clearAll()">Obriši sve podatke</button>
+        <button class="btn btn-danger" onclick="clearAll()">Obriši SVE podatke</button>
       </div>`;
+  }
+
+  function dataBlock(title,items){
+    return `<div class="card mb12" style="padding:6px 16px;">
+      <div class="ir"><span class="ir-l fw8">${title}</span><span class="ir-v c-muted small">${items.length}</span></div>
+      ${items.length===0?'<div class="small c-muted" style="padding:8px 0;">Nema unosa</div>':items.map(it=>`
+        <div class="sr">
+          <div class="sr-l"><div class="sr-date">${it.l}</div><div class="sr-time">${it.s}</div></div>
+          <div class="sr-r"><button class="del" onclick="${it.fn}('${it.id}')">✕</button></div>
+        </div>`).join('')}
+    </div>`;
   }
 
   window.saveCfg=function(){
@@ -930,11 +961,11 @@
         <div class="ob-title">Emmezeta 2026</div>
         <div class="ob-sub">Tracker zarade i isplata<br>15. lipnja – 30. rujna 2026.</div>
         <div class="ob-form">
-          <div class="fg"><label>GitHub Username</label><input type="text" id="ob-o" placeholder="matijawork" autocomplete="off" autocapitalize="none"></div>
           <div class="fg">
             <label>GitHub Token (PAT ili OAuth)</label>
-            <input type="password" id="ob-p" placeholder="gho_... ili ghp_...">
+            <input type="password" id="ob-p" placeholder="gho_... ili ghp_..." onkeydown="if(event.key==='Enter')obConn()">
             <div class="small c-muted mt8" style="line-height:1.6;">
+              Username: <b class="c-purple">${OWNER}</b> (fiksno)<br>
               Laptop: otvori Terminal → ukucaj <code style="background:var(--s2);padding:1px 5px;border-radius:4px;color:var(--acc);">gh auth token</code> → kopiraj output<br>
               Mobitel: koristi setup link iz Postavki (laptop)
             </div>
@@ -945,10 +976,9 @@
   }
 
   window.obConn=async function(){
-    const o=document.getElementById('ob-o').value.trim();
     const p=document.getElementById('ob-p').value.trim();
-    if(!o||!p){toast('Unesi i username i token','err');return;}
-    localStorage.setItem('gh_owner',o); localStorage.setItem('gh_pat',p);
+    if(!p){toast('Unesi token','err');return;}
+    localStorage.setItem('gh_owner',OWNER); localStorage.setItem('gh_pat',p);
     await init();
   };
 
