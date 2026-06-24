@@ -4,15 +4,7 @@
     "ownerName": "Matija"
   },
   "shifts": [],
-  "payments": [
-    {
-      "id": "74fc0645-4ac6-4900-89f7-29ae590c11f5",
-      "date": "2026-06-24",
-      "amount": 100,
-      "weekKey": "2026-W25",
-      "note": ""
-    }
-  ],
+  "payments": [],
   "sideIncome": [
     {
       "id": "78a4117f-a270-4609-bce5-4c05f0ecf15f",
