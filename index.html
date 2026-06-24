@@ -2,7 +2,12 @@
 <html lang="hr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Emmezeta">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Emmezeta 2026</title>
   <style>
     :root {
@@ -41,7 +46,7 @@
     nav button svg{width:22px;height:22px;stroke-width:1.7}
 
     /* MAIN */
-    main{flex:1;padding:20px 16px;padding-bottom:90px;overflow-y:auto}
+    main{flex:1;padding:calc(20px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom));overflow-y:auto}
 
     /* HEADER */
     .hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
@@ -178,7 +183,7 @@
     .qdate button.on{background:var(--bpurple);border-color:var(--p);color:var(--acc)}
 
     /* TOAST */
-    #toasts{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;max-width:440px;width:calc(100% - 32px);pointer-events:none}
+    #toasts{position:fixed;top:calc(16px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;max-width:440px;width:calc(100% - 32px);pointer-events:none}
     .toast{padding:12px 16px;border-radius:var(--rs);font-size:14px;font-weight:500;animation:tslide .25s ease;pointer-events:all;backdrop-filter:blur(12px)}
     .t-ok{background:rgba(21,128,61,.9);border:1px solid rgba(34,197,94,.3);color:#bbf7d0}
     .t-err{background:rgba(127,29,29,.9);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
@@ -382,6 +387,7 @@
   function scheduleSave() {
     if(saveTimer) clearTimeout(saveTimer);
     saveTimer=setTimeout(async()=>{
+      saveTimer=null;
       if(!S.data) return;
       S.syncing=true; S.syncErr=false; updateDot();
       try{
@@ -398,6 +404,29 @@
   function updateDot() {
     const el=document.getElementById('sdot');
     if(el) el.className='sdot'+(S.syncing?' syncing':S.syncErr?' err':'');
+  }
+
+  // ── LIVE SYNC (auto-pull s GitHuba) ───────────────────────────
+  async function refresh() {
+    if(!S.data) return;                 // onboarding / još nije učitano
+    if(S.syncing || saveTimer) return;  // lokalno spremanje u tijeku — ne gazi
+    const ae=document.activeElement;     // user tipka — ne diraj fokus/unos
+    if(ae && /^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName)) return;
+    try{
+      const prev=S.sha;
+      const data=await ghLoad();         // ažurira S.sha
+      if(data && S.sha!==prev){
+        if(!Array.isArray(data.sideIncome)) data.sideIncome=[];
+        if(!Array.isArray(data.expenses))   data.expenses=[];
+        S.data=data; renderView();
+      }
+    }catch(e){ /* offline/tranzijentno — tiho */ }
+  }
+
+  function startLive() {
+    setInterval(refresh, 20000);
+    document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refresh(); });
+    window.addEventListener('focus', refresh);
   }
 
   // ── TOAST ────────────────────────────────────────────────────
@@ -968,6 +997,7 @@
 
   // ── BOOT ─────────────────────────────────────────────────
   init();
+  startLive();
 })();
 </script>
 </body>
