@@ -610,7 +610,6 @@
     const draft={startTime:st,endTime:en,double:dbl};
     const h=calcHours(st,en),r=shiftRate(draft),earned=shiftEarned(draft);
     const over=h>MAXH;
-    const todayShifts=allShifts().filter(s=>s.date===d).sort((a,b)=>a.startTime.localeCompare(b.startTime));
     return `
       <div class="hdr"><h1>Nova smjena</h1></div>
 
@@ -651,15 +650,7 @@
         <div class="cr total"><span>Zarada</span><span>€${fmt(earned)}</span></div>
       </div>
 
-      <button class="btn btn-primary mb16" onclick="saveEntry()">Spremi smjenu</button>
-
-      ${todayShifts.length?`
-        <div class="sec">Smjene za ${fmtDate(d)}</div>
-        ${todayShifts.map(s=>`
-          <div class="sr">
-            <div class="sr-l"><div class="sr-time">${s.startTime}–${s.endTime} · ${calcHours(s.startTime,s.endTime).toFixed(2)}h${s.double?' · +50%':''}</div></div>
-            <div class="sr-r"><div class="sr-amt">€${fmt(shiftEarned(s))}</div><button class="del" onclick="delShift('${s.id}')">✕</button></div>
-          </div>`).join('')}`:''}
+      <button class="btn btn-primary" onclick="saveEntry()">Spremi smjenu</button>
       ${calOverlay()}`;
   }
 
@@ -834,6 +825,15 @@
         <button class="btn btn-primary" onclick="saveCfg()">Spremi</button>
       </div>
 
+      <div class="sec">Prikaz</div>
+      <div class="card">
+        <label>Veličina prikaza (zoom)</label>
+        <div class="chips">
+          ${[90,100,110,125,150].map(z=>`<button class="chip ${curZoom()===z?'on':''}" onclick="setZoom(${z})">${z}%</button>`).join('')}
+        </div>
+        <div class="small c-muted mt8">Sprema se na ovom uređaju — korisno za bolju čitljivost na mobitelu.</div>
+      </div>
+
       <div class="sec">Spajanje uređaja</div>
       <div class="card">
         <div class="c-dim small mb12" style="line-height:1.7;">
@@ -950,7 +950,16 @@
   function iMoney(){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2.5" y="6" width="19" height="13" rx="2.5"/><path d="M2.5 10.5h19"/><circle cx="17" cy="14.5" r="1.4"/></svg>`;}
   function iGear(){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;}
 
+  // ── ZOOM (per-uređaj, sprema se u localStorage) ───────────
+  function curZoom(){ return parseInt(localStorage.getItem('ez_zoom')||'100',10)||100; }
+  function applyZoom(){ document.documentElement.style.zoom = curZoom()/100; }
+  window.setZoom=function(z){
+    localStorage.setItem('ez_zoom',String(z));
+    applyZoom(); renderView(); toast(`Zoom ${z}%`,'ok');
+  };
+
   // ── BOOT ─────────────────────────────────────────────────
+  applyZoom();
   init();
   startLive();
 })();

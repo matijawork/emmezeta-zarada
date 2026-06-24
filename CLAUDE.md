@@ -1,9 +1,12 @@
 # emmezeta-zarada — Claude Memory
 
 ## Status
-- Zadnja sesija: 2026-06-24 (polish + logout + de-brand). Faza: complete (čeka testiranje od Matije)
+- Zadnja sesija: 2026-06-24 (polish + logout + de-brand + dashboard total + entry cleanup + ZOOM). Faza: FINAL (app gotova, čeka testiranje od Matije)
 
-## Promjene 2026-06-24 (3 sesije nakon rework2)
+## Promjene 2026-06-24 (sesije nakon rework2)
+5. DASHBOARD TOTAL: maknuta "Smjene" lista s Pregleda → "Ukupna zarada" card (total=earned+side, breakdown "Posao €X · Sa strane €Y"). Smjene se brišu samo u Postavkama (dataBlock).
+6. ENTRY CLEANUP: maknut "Smjene za <datum>" blok (todayShifts) iz vEntry — Unos završava na "Spremi smjenu".
+7. ZOOM (per-uređaj): Postavke "Prikaz" sekcija → chipovi 90/100/110/125/150%. localStorage key 'ez_zoom'. curZoom()/applyZoom() (document.documentElement.style.zoom=z/100), window.setZoom(z). applyZoom() pozvan u BOOT prije init() → persist kroz reload. NE u data.json (device-specific).
 1. POLISH: makni mrtvi CSS .pbar/.pfill/.wk*/.vres*, dupli .time-row, unused const START/END; .card.list klasa umjesto inline padding 6px16; esc() na ownerName (dash+settings); type=button na cal-day; nav active ::before indikator bar.
 2. LOGOUT: Postavke → umjesto "Ažuriraj token" sad gumb "Odjava — obriši s uređaja" (window.logout: clearTimeout(saveTimer)→localStorage.clear()→location.reload()→onboarding). Maknut window.savePat + s-pat Enter handler. GitHub podaci ostaju, novi token = čist start.
 3. DE-BRAND: nigdje "Emmezeta" u UI-u (ostaje samo u REPO const, APP_URL, ghCreateRepo description, 1 code comment — sve nevidljivo). <title>=Zarada, apple-web-app-title=Zarada. Onboarding: SAMO aktovka 💼 u glow badgeu (.ob-icon redesign) + 1 linija "gh auth token" — maknut .ob-title/.ob-sub/datumski raspon/username/mobitel hint. Dashboard zaglavlje: .brand-ic aktovka badge umjesto h1 "Emmezeta 2026". Settings GitHub Sync→"Račun" card, repo/URL redovi → "Status: Povezano". Novac hero-sub → "Baustela i ostala dodatna zarada".
