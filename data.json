@@ -6,13 +6,6 @@
   "shifts": [],
   "payments": [
     {
-      "id": "bfd20999-2130-467b-8a78-d5b9b47cbb1a",
-      "date": "2026-06-24",
-      "amount": 99.85,
-      "weekKey": "2026-W26",
-      "note": ""
-    },
-    {
       "id": "d5b6dfb4-92e1-42ae-9482-f580f80514a1",
       "date": "2026-06-24",
       "amount": 100,
