@@ -62,7 +62,8 @@
 ## Izračuni
 - Satnica: konfigurabilan (default 6.56 €/h)
 - Dvostruka satnica: RUČNO po smjeni — shift.double === true → ×2 (nema više auto nedjelja/blagdani)
-- shiftRate(sh) = baseRate × (sh.double ? 2 : 1); shiftEarned = sati × shiftRate
+- shiftRate(sh) = baseRate × (sh.double ? PREMIUM : 1); PREMIUM = 1.5 (+50%, NIJE više ×2) — promjena 2026-06-24
+- shiftEarned = sati × shiftRate; UI labela "+50%" (badge, toggle, calc)
 - MAXH = 8 → ako calcHours > 8 → crveno upozorenje na unosu (Matija ne smije >8h)
 - Smjena preko ponoći: endMins <= startMins → endMins += 1440
 - Sve $$: Math.round(x * 100) / 100
@@ -72,8 +73,9 @@
 - Potrošnja se oduzima SAMO od strane zarade (baustela itd.), nikad od Emmezeta isplata
 - sideSources() = [...new Set] izvora iz sideIncome → chips (auto-update, pamti prošle izvore)
 - ISO tjedan: "YYYY-WNN" format
-- PRESETS: brze smjene (07–15, 08–16, 09–17, 14–22, 06–14) na unosu
-- Maknuto: workDaysLeft brojač, Blagdani sekcija, auto ×2 badge-evi
+- PRESETS: brze smjene (08–16, 09–17, 10–18, 12–18, 12–20) — promjena 2026-06-24
+- Datum unos: recentDays(10) scroll chips (.daypick/.dayc) + native picker; time inputi uvećani (.time-row)
+- Maknuto: workDaysLeft brojač, Blagdani sekcija, auto ×2 badge-evi, Sezona progress bar (seasonPct obrisan 2026-06-24)
 
 ## GitHub info
 - Repo: https://github.com/matijawork/emmezeta-zarada

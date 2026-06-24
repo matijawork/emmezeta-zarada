@@ -225,6 +225,18 @@
     .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
     .copy-btn{background:var(--s3);border:1px solid var(--border);color:var(--pl);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:background .15s}
     .copy-btn:hover{background:var(--bpurple)}
+
+    /* DAY PICKER (scroll chips) */
+    .daypick{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .daypick::-webkit-scrollbar{display:none}
+    .dayc{flex:0 0 auto;min-width:60px;padding:10px 8px;background:var(--s2);border:1px solid var(--border);border-radius:12px;color:var(--dim);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:background .15s,border-color .15s,transform .1s}
+    .dayc:active{transform:scale(.94)}
+    .dayc.on{background:var(--bpurple);border-color:var(--p);color:var(--acc)}
+    .dc-dow{font-size:11px;font-weight:600;text-transform:lowercase}
+    .dc-num{font-size:17px;font-weight:800;letter-spacing:-.02em}
+
+    /* BIGGER MANUAL TIME INPUTS */
+    .time-row input[type=time]{text-align:center;font-size:20px;font-weight:700;padding:15px 8px;letter-spacing:.02em}
   </style>
 </head>
 <body>
@@ -242,7 +254,8 @@
   const START = '2026-06-15';
   const END   = '2026-09-30';
   const MAXH  = 8;            // max dozvoljeni sati po smjeni → crveno upozorenje
-  const PRESETS = [['07:00','15:00'],['08:00','16:00'],['09:00','17:00'],['14:00','22:00'],['06:00','14:00']];
+  const PRESETS = [['08:00','16:00'],['09:00','17:00'],['10:00','18:00'],['12:00','18:00'],['12:00','20:00']];
+  const PREMIUM = 1.5;       // uvećana satnica: +50% (ne dvostruka)
   const DAYS  = ['ned','pon','uto','sri','čet','pet','sub'];
   const MONTHS= ['sij','velj','ožu','tra','svi','lip','srp','kol','ruj','lis','stu','pro'];
 
@@ -277,7 +290,7 @@
   }
 
   function baseRate(){ return S.data?.config?.hourlyRate ?? 6.56; }
-  function shiftRate(sh){ return money(baseRate() * (sh.double ? 2 : 1)); }
+  function shiftRate(sh){ return money(baseRate() * (sh.double ? PREMIUM : 1)); }
   function shiftEarned(sh){ return money(calcHours(sh.startTime,sh.endTime) * shiftRate(sh)); }
 
   function isoWeek(ds) {
@@ -331,10 +344,6 @@
     return [...ws].sort();
   }
 
-  function seasonPct() {
-    const s=new Date(START+'T00:00:00'),e=new Date(END+'T00:00:00'),t=new Date(todayStr()+'T00:00:00');
-    return Math.round(Math.max(0,Math.min((t-s)/(e-s),1))*100);
-  }
 
   function uid() {
     return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
@@ -515,7 +524,6 @@
   // ── DASHBOARD ───────────────────────────────────────────────
   function vDash(){
     const earned=totalEarned(),paid=totalPaid(),debt=cumDebt();
-    const pct=seasonPct();
     const weeks=allWeeks().slice().reverse();
     const sub=debt===0?'Sve isplaćeno':debt<0?'Preplaćeno':'Preostalo za isplatu';
     const debtCls=debt===0?'zero':'';
@@ -545,13 +553,6 @@
         </div>
       </div>
 
-      <div class="card mb12">
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
-          <span class="c-dim">Sezona</span>
-          <span class="c-purple fw8">${pct}%</span>
-        </div>
-        <div class="pbar"><div class="pfill" style="width:${pct}%"></div></div>
-      </div>
 
       ${(totalSide()>0||totalSpent()>0)?`
       <div class="card mb12">
@@ -591,7 +592,7 @@
           ${shifts.map(s=>`
             <div class="sr">
               <div class="sr-l">
-                <div class="sr-date">${fmtDate(s.date)}${s.double?' <span class="badge b-sun">×2</span>':''}</div>
+                <div class="sr-date">${fmtDate(s.date)}${s.double?' <span class="badge b-sun">+50%</span>':''}</div>
                 <div class="sr-time">${s.startTime}–${s.endTime} · ${calcHours(s.startTime,s.endTime).toFixed(2)}h · €${fmt(shiftRate(s))}/h</div>
               </div>
               <div class="sr-r">
@@ -623,24 +624,30 @@
   window.delPay=function(id){if(!confirm('Obriši isplatu?'))return;S.data.payments=S.data.payments.filter(p=>p.id!==id);scheduleSave();renderView();};
 
   // ── ENTRY ──────────────────────────────────────────────────
+  function recentDays(n){
+    const out=[]; const base=new Date(todayStr()+'T00:00:00');
+    for(let i=0;i<n;i++){
+      const dt=new Date(base); dt.setDate(base.getDate()-i);
+      out.push({ds:dt.toISOString().split('T')[0], dow:i===0?'Danas':i===1?'Jučer':DAYS[dt.getDay()], num:dt.getDate()+'.'});
+    }
+    return out;
+  }
+
   function vEntry(){
     const d=S.eDate,st=S.eStart,en=S.eEnd,dbl=S.eDouble;
     const draft={startTime:st,endTime:en,double:dbl};
     const h=calcHours(st,en),r=shiftRate(draft),earned=shiftEarned(draft);
     const over=h>MAXH;
-    const yday=new Date(todayStr()+'T00:00:00'); yday.setDate(yday.getDate()-1);
-    const ydayStr=yday.toISOString().split('T')[0];
     const todayShifts=allShifts().filter(s=>s.date===d).sort((a,b)=>a.startTime.localeCompare(b.startTime));
     return `
       <div class="hdr"><h1>Nova smjena</h1></div>
 
       <div class="fg">
         <label>Datum</label>
-        <div class="qdate">
-          <button class="${d===todayStr()?'on':''}" onclick="eSet('date','${todayStr()}')">Danas</button>
-          <button class="${d===ydayStr?'on':''}" onclick="eSet('date','${ydayStr}')">Jučer</button>
+        <div class="daypick">
+          ${recentDays(10).map(rd=>`<button class="dayc ${d===rd.ds?'on':''}" onclick="eSet('date','${rd.ds}')"><span class="dc-dow">${rd.dow}</span><span class="dc-num">${rd.num}</span></button>`).join('')}
         </div>
-        <input type="date" value="${d}" min="${START}" max="${END}" oninput="eSet('date',this.value)">
+        <input type="date" value="${d}" min="${START}" max="${END}" oninput="eSet('date',this.value)" style="margin-top:10px;">
       </div>
 
       <div class="fg">
@@ -660,8 +667,8 @@
       <div class="fg">
         <div class="toggle-row ${dbl?'on':''}" onclick="eSet('double',${!dbl})">
           <div>
-            <div class="tl">Dvostruka satnica ×2</div>
-            <div class="ts">${dbl?`Aktivno — €${fmt(r)}/h`:'Uključi za duplu satnicu'}</div>
+            <div class="tl">Uvećana satnica +50%</div>
+            <div class="ts">${dbl?`Aktivno — €${fmt(r)}/h`:'Uključi za +50% (npr. nedjelja/blagdan)'}</div>
           </div>
           <div class="switch"></div>
         </div>
@@ -671,7 +678,7 @@
 
       <div class="calc">
         <div class="cr"><span>Sati</span><span class="${over?'c-err fw8':''}">${h.toFixed(2)} h</span></div>
-        <div class="cr"><span>Satnica${dbl?' ×2':''}</span><span>€${fmt(r)}/h</span></div>
+        <div class="cr"><span>Satnica${dbl?' +50%':''}</span><span>€${fmt(r)}/h</span></div>
         <div class="cr total"><span>Zarada</span><span>€${fmt(earned)}</span></div>
       </div>
 
@@ -681,7 +688,7 @@
         <div class="sec">Smjene za ${fmtDate(d)}</div>
         ${todayShifts.map(s=>`
           <div class="sr">
-            <div class="sr-l"><div class="sr-time">${s.startTime}–${s.endTime} · ${calcHours(s.startTime,s.endTime).toFixed(2)}h${s.double?' · ×2':''}</div></div>
+            <div class="sr-l"><div class="sr-time">${s.startTime}–${s.endTime} · ${calcHours(s.startTime,s.endTime).toFixed(2)}h${s.double?' · +50%':''}</div></div>
             <div class="sr-r"><div class="sr-amt">€${fmt(shiftEarned(s))}</div><button class="del" onclick="delShift('${s.id}')">✕</button></div>
           </div>`).join('')}`:''}`;
   }
@@ -887,7 +894,7 @@
         <div class="fg">
           <label>Satnica (€/h)</label>
           <input type="number" id="s-rate" value="${cfg.hourlyRate??6.56}" step="0.01" min="0.01">
-          <div class="small c-muted mt8">Dvostruku satnicu ×2 uključuješ ručno po smjeni</div>
+          <div class="small c-muted mt8">Uvećanu satnicu +50% uključuješ ručno po smjeni</div>
         </div>
         <button class="btn btn-primary" onclick="saveCfg()">Spremi</button>
       </div>
