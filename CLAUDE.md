@@ -31,7 +31,7 @@ Repo se zove `emmezeta-zarada` (infra ime), ali app je **generički** — u UI-u
 
 ## Viewovi (nav: Pregled / Unos / Isplata / Novac / Postavke)
 - **dashboard** `vDash`: brand badge (aktovka), hero "Dug roditelja" (`cumDebt`), grid2 Zarađeno/Isplaćeno, "Zarađeno sa strane" stat (ako >0), **"Ukupna zarada"** card = `totalEarned()+totalSide()`. NEMA liste smjena (briše se u Postavkama).
-- **entry** `vEntry`: datum (custom kalendar), preset chipovi, 2× time dropdown (`timeSelects`/`eSetTime`), +50% toggle (`eDouble`), >8h crveno upozorenje, calc preview, "Spremi smjenu". Bez liste nakon spremanja.
+- **entry** `vEntry`: datum (custom kalendar), preset chipovi, 2× time dropdown (`timeSelects`/`eSetTime`), +50% toggle (`eDouble`), >8h crveno upozorenje, calc preview, "Spremi smjenu", pa **"Sve smjene"** lista (svih smjena desc, ✕ `delShift`).
 - **verify** `vPay`: hero dug, datum, iznos input → live preview `presHTML()` (`pCalc` updejta samo #pres, bez re-rendera = fokus ostaje), lista isplata.
 - **money** `vMoney`: hero strana zarada, datum + izvor (`si-source`, chip dropdown izvora `mSrc(i)` šalje INDEX, ne string) + iznos, lista. `readSide()` DOM→state na oninput bez re-rendera.
 - **settings** `vSettings`: Osobni podaci (ime, satnica), **Prikaz** (zoom chips), Spajanje uređaja (`genLink`/`copyLink`), Svi podaci (`dataBlock` → `delShift`/`delPay`/`delSide`), Račun (Status Povezano + **Odjava** `logout`), Zona opasnosti (`clearAll`).

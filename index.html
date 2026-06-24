@@ -610,6 +610,7 @@
     const draft={startTime:st,endTime:en,double:dbl};
     const h=calcHours(st,en),r=shiftRate(draft),earned=shiftEarned(draft);
     const over=h>MAXH;
+    const shifts=allShifts().slice().sort((a,b)=>b.date.localeCompare(a.date)||b.startTime.localeCompare(a.startTime));
     return `
       <div class="hdr"><h1>Nova smjena</h1></div>
 
@@ -650,7 +651,20 @@
         <div class="cr total"><span>Zarada</span><span>€${fmt(earned)}</span></div>
       </div>
 
-      <button class="btn btn-primary" onclick="saveEntry()">Spremi smjenu</button>
+      <button class="btn btn-primary mb16" onclick="saveEntry()">Spremi smjenu</button>
+
+      <div class="sec">Sve smjene</div>
+      ${shifts.length===0?'<div class="empty">Još nema smjena.</div>':`<div class="card list mb16">${shifts.map(s=>`
+        <div class="sr">
+          <div class="sr-l">
+            <div class="sr-date">${fmtDate(s.date)}${s.double?' <span class="badge b-sun">+50%</span>':''}</div>
+            <div class="sr-time">${s.startTime}–${s.endTime} · ${calcHours(s.startTime,s.endTime).toFixed(2)}h · €${fmt(shiftRate(s))}/h</div>
+          </div>
+          <div class="sr-r">
+            <div class="sr-amt">€${fmt(shiftEarned(s))}</div>
+            <button class="del" onclick="delShift('${s.id}')">✕</button>
+          </div>
+        </div>`).join('')}</div>`}
       ${calOverlay()}`;
   }
 
