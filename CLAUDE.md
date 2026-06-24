@@ -1,8 +1,14 @@
 # emmezeta-zarada — Claude Memory
 
 ## Status
-- Zadnja sesija: 2026-06-24 (polish: makni mrtvi CSS .pbar/.pfill/.wk*/.vres*, dupli .time-row, unused const START/END; .card.list klasa umjesto inline padding 6px16; esc() na ownerName dash+settings; type=button na cal-day; nav active ::before indikator bar. Verificirano headless Chrome screenshotom dash+entry)
-- Faza: complete (čeka testiranje od Matije)
+- Zadnja sesija: 2026-06-24 (polish + logout + de-brand). Faza: complete (čeka testiranje od Matije)
+
+## Promjene 2026-06-24 (3 sesije nakon rework2)
+1. POLISH: makni mrtvi CSS .pbar/.pfill/.wk*/.vres*, dupli .time-row, unused const START/END; .card.list klasa umjesto inline padding 6px16; esc() na ownerName (dash+settings); type=button na cal-day; nav active ::before indikator bar.
+2. LOGOUT: Postavke → umjesto "Ažuriraj token" sad gumb "Odjava — obriši s uređaja" (window.logout: clearTimeout(saveTimer)→localStorage.clear()→location.reload()→onboarding). Maknut window.savePat + s-pat Enter handler. GitHub podaci ostaju, novi token = čist start.
+3. DE-BRAND: nigdje "Emmezeta" u UI-u (ostaje samo u REPO const, APP_URL, ghCreateRepo description, 1 code comment — sve nevidljivo). <title>=Zarada, apple-web-app-title=Zarada. Onboarding: SAMO aktovka 💼 u glow badgeu (.ob-icon redesign) + 1 linija "gh auth token" — maknut .ob-title/.ob-sub/datumski raspon/username/mobitel hint. Dashboard zaglavlje: .brand-ic aktovka badge umjesto h1 "Emmezeta 2026". Settings GitHub Sync→"Račun" card, repo/URL redovi → "Status: Povezano". Novac hero-sub → "Baustela i ostala dodatna zarada".
+4. PREMIUM GUMBI (Apple look): .btn-primary živi gradient 180deg #9466f6→#6321c9 + inset gloss + glow shadow + hover brightness; .btn-secondary izdignuti gradient s3→s2; .btn-sm isto. Aktovka u rounded glow badge (.ob-icon 88px, .brand-ic 42px).
+- App je sada GENERIČKI tracker zarade (ne samo Emmezeta) — ne spominjati Emmezeta u UI tekstu.
 
 ## VAŽNO — rework2 (2026-06-24)
 - ISPLATA više NIJE po tjednima — datumski (kao smjene/strana zarada). Korisnik bira datum kalendarom + iznos. recPay() bez tjedna.
