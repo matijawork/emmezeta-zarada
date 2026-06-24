@@ -1,115 +1,86 @@
-# emmezeta-zarada — Claude Memory
+# Zarada — Claude Memory
+
+Tracker zarade i isplata. Single-file SPA (`index.html`), crno + premium purple, Apple-clean.
+Repo se zove `emmezeta-zarada` (infra ime), ali app je **generički** — u UI-u se NIGDJE ne spominje "Emmezeta".
 
 ## Status
-- Zadnja sesija: 2026-06-24 (polish + logout + de-brand + dashboard total + entry cleanup + ZOOM). Faza: FINAL (app gotova, čeka testiranje od Matije)
+- **FINAL** — app gotova i u produkciji. Nema poznatih bugova.
+- Mijenjaj samo na izričit zahtjev. Nakon promjene: verificiraj (vidi dolje), commit, push.
 
-## Promjene 2026-06-24 (sesije nakon rework2)
-5. DASHBOARD TOTAL: maknuta "Smjene" lista s Pregleda → "Ukupna zarada" card (total=earned+side, breakdown "Posao €X · Sa strane €Y"). Smjene se brišu samo u Postavkama (dataBlock).
-6. ENTRY CLEANUP: maknut "Smjene za <datum>" blok (todayShifts) iz vEntry — Unos završava na "Spremi smjenu".
-7. ZOOM (per-uređaj): Postavke "Prikaz" sekcija → chipovi 90/100/110/125/150%. localStorage key 'ez_zoom'. curZoom()/applyZoom() (document.documentElement.style.zoom=z/100), window.setZoom(z). applyZoom() pozvan u BOOT prije init() → persist kroz reload. NE u data.json (device-specific).
-1. POLISH: makni mrtvi CSS .pbar/.pfill/.wk*/.vres*, dupli .time-row, unused const START/END; .card.list klasa umjesto inline padding 6px16; esc() na ownerName (dash+settings); type=button na cal-day; nav active ::before indikator bar.
-2. LOGOUT: Postavke → umjesto "Ažuriraj token" sad gumb "Odjava — obriši s uređaja" (window.logout: clearTimeout(saveTimer)→localStorage.clear()→location.reload()→onboarding). Maknut window.savePat + s-pat Enter handler. GitHub podaci ostaju, novi token = čist start.
-3. DE-BRAND: nigdje "Emmezeta" u UI-u (ostaje samo u REPO const, APP_URL, ghCreateRepo description, 1 code comment — sve nevidljivo). <title>=Zarada, apple-web-app-title=Zarada. Onboarding: SAMO aktovka 💼 u glow badgeu (.ob-icon redesign) + 1 linija "gh auth token" — maknut .ob-title/.ob-sub/datumski raspon/username/mobitel hint. Dashboard zaglavlje: .brand-ic aktovka badge umjesto h1 "Emmezeta 2026". Settings GitHub Sync→"Račun" card, repo/URL redovi → "Status: Povezano". Novac hero-sub → "Baustela i ostala dodatna zarada".
-4. PREMIUM GUMBI (Apple look): .btn-primary živi gradient 180deg #9466f6→#6321c9 + inset gloss + glow shadow + hover brightness; .btn-secondary izdignuti gradient s3→s2; .btn-sm isto. Aktovka u rounded glow badge (.ob-icon 88px, .brand-ic 42px).
-- App je sada GENERIČKI tracker zarade (ne samo Emmezeta) — ne spominjati Emmezeta u UI tekstu.
+## Pokretanje / deploy
+- Otvori `index.html` u browseru (nema build, nema dependencija).
+- Produkcija: GitHub Pages → https://matijawork.github.io/emmezeta-zarada/
+- Push na `main` → live za ~1 min. Cache-bust: dodaj `?v=<sha>`.
+- **Verifikacija promjena** (lokalno, bez tokena/networka): headless Chrome screenshot.
+  - `node --check` na izvučenom JS-u za sintaksu.
+  - Za viewove koji trebaju podatke: ubaci `<script>` koji stubа `window.fetch` (vrati `{ok,status:200,json:()=>({sha,content})}` gdje je `content` = base64 od `JSON.stringify(sample)`) i `localStorage.gh_pat`. Onda `--screenshot`.
 
-## VAŽNO — rework2 (2026-06-24)
-- ISPLATA više NIJE po tjednima — datumski (kao smjene/strana zarada). Korisnik bira datum kalendarom + iznos. recPay() bez tjedna.
-- Maknut Tjedni pregled s dashboarda → flat lista "Smjene" (sortirana desc, briši po retku)
-- Maknut TROŠAK skroz (Novac tab = samo strana zarada). Nema expenses/cashOnHand/totalSpent.
-- Custom KALENDAR popup (calOverlay/openCal/calPick/calNav, Mon-first, MONTHS_FULL) za: smjenu (target 'shift'), stranu zaradu ('side'), isplatu ('pay'). dateField() = trigger gumb.
-- TIME unos = 2 dropdowna (sat 00-23 + min 00/15/30/45), ljubičasti (.time-sel select). timeSelects()/eSetTime(). Nema više type=time input.
-- Enter shortcut: si-source→fokus iznos, si-amount→addSide, p-amount→recPay
-- Maknute mrtve funkcije: weekShifts/weekPays/weekEarned/weekPaid/allWeeks/weekMonday/weekLabel/wkRow/toggleWk/recentDays/seasonPct + CSS .qdate/.daypick/.dayc
-- isoWeek() ostaje (recPay piše weekKey za back-compat, ali se ne koristi za prikaz)
-- OWNER='matijawork' FIKSNO (const) — owner() vraća OWNER, ignorira localStorage. Onboarding pita SAMO token. Auth check = samo pat().
-- Postavke "Svi podaci" sekcija: dataBlock(title,items) lista smjene/isplate/strana zarada s ✕ brisanjem (delShift/delPay/delSide). + "Obriši SVE" danger.
-- Globalni shortcuti (u startLive keydown): Esc→closeCal, Enter→submit po viewu (entry:saveEntry, verify:recPay, money:addSide, settings:saveCfg). s-pat→savePat, ob-p ima svoj. Pojedinačni input Enter handleri MAKNUTI (osim ob-p) da se ne dupliciraju.
-
-## Što je gotovo
-- [x] Git setup + GitHub public repo (matijawork/emmezeta-zarada)
-- [x] index.html — full black + premium purple dizajn, single file SPA
-- [x] Dnevni unos: datum, početak, kraj → auto sati, stopa, zarada
-- [x] Tjedni izračuni (ISO tjedni, ponedjeljak–nedjelja)
-- [x] Kumulativni dug logika (ukupno zarađeno − ukupno isplaćeno)
-- [x] Verifikacija isplate (tjedna provjera + evidencija)
-- [x] GitHub API sync (read/write, debounce 1s, offline fallback)
-- [x] Auto-setup via URL hash (#setup-OWNER_B64-TOKEN_B64)
-- [x] Onboarding ekran (username + token, objašnjava `gh auth token`)
-- [x] setup-laptop.sh — auto generira setup URL i otvara browser
-- [x] Postavke: "Generiraj setup link za mobitel" → kopiraj URL → otvori na mobitelu
-- [x] GitHub Pages deploy — https://matijawork.github.io/emmezeta-zarada/
-- [x] Satnica 6.56 €/h (rework 2026-06-19)
-- [x] Ručni ×2 toggle po smjeni (shift.double) — maknut auto nedjelja/blagdani ×2
-- [x] Redizajn unosa: brze smjene (chips), Danas/Jučer datum, time pickeri
-- [x] >8h crveno upozorenje (Matija ne smije >8h)
-- [x] Maknut workDaysLeft brojač + Blagdani sekcija + mrtvi CSS/tekst
-- [x] Edge cases: smjena preko ponoći, ručni ×2, offline fallback
-- [x] Tab "Novac" (5. nav): strana zarada + potrošnja (2026-06-24)
-- [x] Strana zarada: datum + izvor (ime) + iznos; izvori se pamte → chip dropdown (derivirano iz unosa, auto-update)
-- [x] Potrošnja: datum + opis + iznos; oduzima SAMO od strane zarade (Emmezeta netaknuta)
-- [x] Stanje gotovine = totalSide() − totalSpent(); card na Dashboardu (samo ako ima podataka) + hero na tabu Novac
-- [x] Migracija starog data.json: sideIncome/expenses → [] na loadu
-
-## Otvoreni bugovi / TODO
-- Nema poznatih bugova
+## Datoteke
+- `index.html` — SVE (HTML + CSS + JS inline u IIFE). Jedino što se uređuje.
+- `data.json` — podaci u repu (primarni storage, app ga čita/piše preko GitHub API).
+- `setup-laptop.sh` — generira setup URL i otvori browser (cross-device pomoć).
 
 ## Arhitektura
-- Single file: index.html (CSS + JS inline, bez dependencija)
-- Storage: GitHub API → data.json u repu (primary), localStorage kao cache/offline
-- Auth: GitHub OAuth token (gh auth token) ili PAT — localStorage keys: gh_pat, gh_owner
-- SHA write: uvijek svježi GET prije PUT (u ghWrite())
-- Encoding: TextEncoder/TextDecoder (UTF-8 safe, podržava čšžćđ)
-- Auto-save: debounce 1000ms (scheduleSave())
-- Offline fallback: localStorage key = 'ez_offline'
+- **Storage**: GitHub API → `data.json` u repu (primary). `localStorage` = offline cache.
+- **Auth**: GitHub token (`gh auth token` ili PAT). `OWNER='matijawork'` FIKSNO (const) — owner() ignorira localStorage. Auth check = samo `pat()` (localStorage `gh_pat`). Onboarding pita SAMO token.
+- **localStorage keys**: `gh_pat` (token), `gh_owner` (set ali se ne koristi), `ez_offline` (offline data fallback), `ez_zoom` (zoom %, per-uređaj).
+- **Write**: `ghWrite()` uvijek svježi GET SHA prije PUT. `scheduleSave()` debounce 1000ms. Encoding `encData/decData` (TextEncoder/Decoder, UTF-8 → čšžćđ OK).
+- **Live sync**: `refresh()` auto-pulla na focus/visibilitychange + `setInterval 20s` (`startLive()`). Guard: ne pulla ako `S.syncing||saveTimer` ni ako je INPUT/SELECT/TEXTAREA fokusiran. `saveTimer=null` nakon fire (inače guard zauvijek blokira).
+- **State** `S`: view, data, sha, syncing/syncErr, e* (entry draft), p* (pay), si* (side), cal{open,target,month}, setupLink.
+- **Render**: `renderView()` → `views[S.view]()` u `#mc`. Globalne fn na `window.*` za onclick.
 
-## Auto-setup flow (cross-device)
-- URL format: `https://matijawork.github.io/emmezeta-zarada/#setup-OWNER_B64-TOKEN_B64`
-- Base64url encode/decode: b64e/b64d funkcije u app-u
-- App na init() čita hash → sprema u localStorage → briše hash → nastavlja normalno
-- Laptop: pokrenuti `bash ~/Desktop/emmezeta-zarada/setup-laptop.sh`
-- Mobitel: Postavke → "Generiraj setup link za mobitel" → kopiraj → otvori
+## Viewovi (nav: Pregled / Unos / Isplata / Novac / Postavke)
+- **dashboard** `vDash`: brand badge (aktovka), hero "Dug roditelja" (`cumDebt`), grid2 Zarađeno/Isplaćeno, "Zarađeno sa strane" stat (ako >0), **"Ukupna zarada"** card = `totalEarned()+totalSide()`. NEMA liste smjena (briše se u Postavkama).
+- **entry** `vEntry`: datum (custom kalendar), preset chipovi, 2× time dropdown (`timeSelects`/`eSetTime`), +50% toggle (`eDouble`), >8h crveno upozorenje, calc preview, "Spremi smjenu". Bez liste nakon spremanja.
+- **verify** `vPay`: hero dug, datum, iznos input → live preview `presHTML()` (`pCalc` updejta samo #pres, bez re-rendera = fokus ostaje), lista isplata.
+- **money** `vMoney`: hero strana zarada, datum + izvor (`si-source`, chip dropdown izvora `mSrc(i)` šalje INDEX, ne string) + iznos, lista. `readSide()` DOM→state na oninput bez re-rendera.
+- **settings** `vSettings`: Osobni podaci (ime, satnica), **Prikaz** (zoom chips), Spajanje uređaja (`genLink`/`copyLink`), Svi podaci (`dataBlock` → `delShift`/`delPay`/`delSide`), Račun (Status Povezano + **Odjava** `logout`), Zona opasnosti (`clearAll`).
+- **onboarding** `renderOnboarding`: aktovka 💼 badge + token input + jedna linija `gh auth token` + "Spoji".
 
-## Data shape (data.json u GitHub repu)
+## data.json shape
 ```json
 {
   "config": { "hourlyRate": 6.56, "ownerName": "Matija" },
   "shifts": [{ "id": "uuid", "date": "2026-06-15", "startTime": "07:00", "endTime": "15:00", "double": false }],
-  "payments": [{ "id": "uuid", "date": "2026-06-22", "amount": 260.00, "weekKey": "2026-W26", "note": "" }],
-  "sideIncome": [{ "id": "uuid", "date": "2026-06-21", "amount": 80.00, "source": "Baustela" }],
-  "expenses": [{ "id": "uuid", "date": "2026-06-22", "amount": 15.00, "note": "Hrana" }]
+  "payments": [{ "id": "uuid", "date": "2026-06-22", "amount": 260.0, "weekKey": "2026-W26", "note": "" }],
+  "sideIncome": [{ "id": "uuid", "date": "2026-06-21", "amount": 80.0, "source": "Baustela" }]
 }
 ```
+- `double` = ručni +50% po smjeni. `weekKey` = `isoWeek(date)`, piše se za back-compat ali se NE koristi za prikaz (jedini razlog da `isoWeek()` postoji).
+- Migracija na load: ako `sideIncome` nije array → `[]`. (Stari `expenses` ne postoji više.)
 
 ## Izračuni
-- Satnica: konfigurabilan (default 6.56 €/h)
-- Dvostruka satnica: RUČNO po smjeni — shift.double === true → ×2 (nema više auto nedjelja/blagdani)
-- shiftRate(sh) = baseRate × (sh.double ? PREMIUM : 1); PREMIUM = 1.5 (+50%, NIJE više ×2) — promjena 2026-06-24
-- shiftEarned = sati × shiftRate; UI labela "+50%" (badge, toggle, calc)
-- MAXH = 8 → ako calcHours > 8 → crveno upozorenje na unosu (Matija ne smije >8h)
-- Smjena preko ponoći: endMins <= startMins → endMins += 1440
-- Sve $$: Math.round(x * 100) / 100
-- Kumulativni dug = totalEarned() − totalPaid()  (SAMO Emmezeta — strana zarada/potrošnja NE diraju dug)
-- Gotovina (svijet B, odvojeno): cashOnHand() = totalSide() − totalSpent()
-- totalSide() = Σ sideIncome.amount; totalSpent() = Σ expenses.amount
-- Potrošnja se oduzima SAMO od strane zarade (baustela itd.), nikad od Emmezeta isplata
-- sideSources() = [...new Set] izvora iz sideIncome → chips (auto-update, pamti prošle izvore)
-- ISO tjedan: "YYYY-WNN" format
-- PRESETS: brze smjene (08–16, 09–17, 10–18, 12–18, 12–20) — promjena 2026-06-24
-- Datum unos: recentDays(10) scroll chips (.daypick/.dayc) + native picker; time inputi uvećani (.time-row)
-- Maknuto: workDaysLeft brojač, Blagdani sekcija, auto ×2 badge-evi, Sezona progress bar (seasonPct obrisan 2026-06-24)
+- `baseRate()` = config.hourlyRate ?? 6.56. `PREMIUM = 1.5` (+50%, NIJE ×2).
+- `shiftRate(sh)` = baseRate × (sh.double ? 1.5 : 1). `shiftEarned` = sati × shiftRate.
+- `calcHours(start,end)`: preko ponoći → `if(e<=s) e+=1440`.
+- `MAXH = 8` → calcHours > 8 → crveno upozorenje (Matija ne smije >8h).
+- `totalEarned` = Σ shiftEarned, `totalPaid` = Σ payments.amount, `cumDebt` = earned − paid (SAMO posao; strana zarada NE dira dug).
+- `totalSide` = Σ sideIncome.amount; `sideSources()` = unique izvori → chips (auto-update).
+- Sav novac: `money(x) = Math.round(x*100)/100`. Prikaz `fmt(n)` = `toFixed(2)` s zarezom.
+- `PRESETS`: 08–16, 09–17, 10–18, 12–18, 12–20. Radi za SVE datume (nema više START/END raspona).
 
-## GitHub info
-- Repo: https://github.com/matijawork/emmezeta-zarada
-- GitHub Pages: https://matijawork.github.io/emmezeta-zarada/
-- Branch: main, root /
+## Custom kalendar
+- `dateField(target,ds)` = trigger gumb → `openCal(target)`. Target: 'shift'|'pay'|'side'.
+- `calOverlay()` render (Mon-first, MONTHS_FULL), `calNav(±1)`, `calPick(ds)`, `closeCal()`. Prije otvaranja sprema utipkano (`readSide`/`readPay`).
 
-## Kritično za sljedeću sesiju
-- Satnica se mijenja u Postavkama → sprema u data.json config
-- Sve kalkulacije su DERIVIRANE iz shifts — sprema se id/date/startTime/endTime/double
-- weekKey u payments mora biti isoWeek(date) format (npr. "2026-W26")
-- Ako GitHub sync ne radi → podaci lokalno u localStorage 'ez_offline', sync pri sljedećem init()
-- LIVE SYNC (2026-06-24): refresh() auto-pulla data.json na focus/visibilitychange + setInterval 20s (startLive()). Guard: ne pulla ako S.syncing||saveTimer (lokalno spremanje) ni ako je INPUT/SELECT/TEXTAREA fokusiran. saveTimer=null nakon fire (inače guard blokira zauvijek). Cross-device near-realtime.
-- iPhone: viewport-fit=cover + apple-mobile-web-app meta + safe-area-inset (main/toasts/nav). Inputi 16px → nema iOS zoom.
-- classifier blokira komande s gh tokenima — korisnik mora sam pokrenuti u Terminal.app
-- Tab Novac: inputi koriste readSide()/readExp() (DOM→state na oninput) BEZ re-rendera dok tipkaš (izbjegava gubljenje fokusa). Re-render samo na chip/Danas-Jučer tap i Dodaj/briši. Chip izvora šalje INDEX (mSrc(i)), ne string → sigurno za apostrofe. esc() escapea sav user tekst u HTML.
+## Zoom (per-uređaj)
+- Postavke → "Prikaz" chipovi 90/100/110/125/150%. Sprema u `localStorage.ez_zoom`.
+- `curZoom()` / `applyZoom()` (`document.documentElement.style.zoom = z/100`), `setZoom(z)`.
+- `applyZoom()` pozvan u BOOT prije `init()` → persist kroz reload. NIJE u data.json (device-specific).
+
+## Logout
+- `window.logout`: `clearTimeout(saveTimer)` → `localStorage.clear()` → `location.reload()` → onboarding. GitHub podaci ostaju; novi token = čist start.
+
+## Cross-device setup
+- URL: `https://matijawork.github.io/emmezeta-zarada/#setup-OWNER_B64-TOKEN_B64` (b64url `b64e`/`b64d`).
+- `init()` čita hash → localStorage → briše hash → nastavlja. Mobitel: Postavke → "Generiraj setup link".
+
+## Konvencije / gotchas
+- Sve user-tekst kroz `esc()` prije u HTML (XSS-safe).
+- Globalni shortcuti (startLive keydown): Esc→closeCal; Enter→submit po viewu (entry:saveEntry, verify:recPay, money:addSide, settings:saveCfg); ob-p ima svoj handler.
+- iPhone: viewport-fit=cover + apple-web-app meta + safe-area-inset (main/toasts/nav). Inputi 16px → nema iOS zoom.
+- Komande s gh tokenima blokira classifier → korisnik ih sam pokrene u Terminalu.
+- CSS: `:root` varijable, `.btn-primary` glossy gradient + glow, `.card.list` za liste, brand badge aktovka.
+
+## TODO
+- Nema. Ako korisnik traži izmjenu: napravi, verificiraj screenshotom, commit + push, pa ažuriraj ovaj CLAUDE.md.

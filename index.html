@@ -654,7 +654,7 @@
       ${calOverlay()}`;
   }
 
-  window.eSet=function(f,v){if(f==='date')S.eDate=v;if(f==='double')S.eDouble=v;renderView();};
+  window.eSet=function(f,v){if(f==='double')S.eDouble=v;renderView();};
   window.eSetTime=function(which,part,v){
     const key=which==='start'?'eStart':'eEnd';
     let [h,m]=S[key].split(':');
