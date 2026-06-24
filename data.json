@@ -20,5 +20,12 @@
     }
   ],
   "payments": [],
-  "sideIncome": []
+  "sideIncome": [
+    {
+      "id": "aa05b48b-77ac-4a96-b86d-7cda7fcc990f",
+      "date": "2026-06-24",
+      "amount": 5,
+      "source": "test"
+    }
+  ]
 }
