@@ -1,8 +1,8 @@
 # emmezeta-zarada — Claude Memory
 
 ## Status
-- Zadnja sesija: 2026-06-19 (rework: ručna ×2, satnica 6.56, redizajn unosa) — pushano na main, deployano
-- Faza: complete
+- Zadnja sesija: 2026-06-24 (NOVO: tab "Novac" — strana zarada s izvorima + potrošnja, gotovina = strana − potrošeno)
+- Faza: complete (čeka testiranje od Matije)
 
 ## Što je gotovo
 - [x] Git setup + GitHub public repo (matijawork/emmezeta-zarada)
@@ -23,6 +23,11 @@
 - [x] >8h crveno upozorenje (Matija ne smije >8h)
 - [x] Maknut workDaysLeft brojač + Blagdani sekcija + mrtvi CSS/tekst
 - [x] Edge cases: smjena preko ponoći, ručni ×2, offline fallback
+- [x] Tab "Novac" (5. nav): strana zarada + potrošnja (2026-06-24)
+- [x] Strana zarada: datum + izvor (ime) + iznos; izvori se pamte → chip dropdown (derivirano iz unosa, auto-update)
+- [x] Potrošnja: datum + opis + iznos; oduzima SAMO od strane zarade (Emmezeta netaknuta)
+- [x] Stanje gotovine = totalSide() − totalSpent(); card na Dashboardu (samo ako ima podataka) + hero na tabu Novac
+- [x] Migracija starog data.json: sideIncome/expenses → [] na loadu
 
 ## Otvoreni bugovi / TODO
 - Nema poznatih bugova
@@ -48,7 +53,9 @@
 {
   "config": { "hourlyRate": 6.56, "ownerName": "Matija" },
   "shifts": [{ "id": "uuid", "date": "2026-06-15", "startTime": "07:00", "endTime": "15:00", "double": false }],
-  "payments": [{ "id": "uuid", "date": "2026-06-22", "amount": 260.00, "weekKey": "2026-W26", "note": "" }]
+  "payments": [{ "id": "uuid", "date": "2026-06-22", "amount": 260.00, "weekKey": "2026-W26", "note": "" }],
+  "sideIncome": [{ "id": "uuid", "date": "2026-06-21", "amount": 80.00, "source": "Baustela" }],
+  "expenses": [{ "id": "uuid", "date": "2026-06-22", "amount": 15.00, "note": "Hrana" }]
 }
 ```
 
@@ -59,7 +66,11 @@
 - MAXH = 8 → ako calcHours > 8 → crveno upozorenje na unosu (Matija ne smije >8h)
 - Smjena preko ponoći: endMins <= startMins → endMins += 1440
 - Sve $$: Math.round(x * 100) / 100
-- Kumulativni dug = totalEarned() − totalPaid()
+- Kumulativni dug = totalEarned() − totalPaid()  (SAMO Emmezeta — strana zarada/potrošnja NE diraju dug)
+- Gotovina (svijet B, odvojeno): cashOnHand() = totalSide() − totalSpent()
+- totalSide() = Σ sideIncome.amount; totalSpent() = Σ expenses.amount
+- Potrošnja se oduzima SAMO od strane zarade (baustela itd.), nikad od Emmezeta isplata
+- sideSources() = [...new Set] izvora iz sideIncome → chips (auto-update, pamti prošle izvore)
 - ISO tjedan: "YYYY-WNN" format
 - PRESETS: brze smjene (07–15, 08–16, 09–17, 14–22, 06–14) na unosu
 - Maknuto: workDaysLeft brojač, Blagdani sekcija, auto ×2 badge-evi
@@ -75,3 +86,4 @@
 - weekKey u payments mora biti isoWeek(date) format (npr. "2026-W26")
 - Ako GitHub sync ne radi → podaci lokalno u localStorage 'ez_offline', sync pri sljedećem init()
 - classifier blokira komande s gh tokenima — korisnik mora sam pokrenuti u Terminal.app
+- Tab Novac: inputi koriste readSide()/readExp() (DOM→state na oninput) BEZ re-rendera dok tipkaš (izbjegava gubljenje fokusa). Re-render samo na chip/Danas-Jučer tap i Dodaj/briši. Chip izvora šalje INDEX (mSrc(i)), ne string → sigurno za apostrofe. esc() escapea sav user tekst u HTML.

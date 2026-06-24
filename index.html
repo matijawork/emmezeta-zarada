@@ -249,6 +249,8 @@
     openWeeks: new Set(),
     eDate: todayStr(), eStart: '07:00', eEnd: '15:00', eDouble: false,
     vWeek: '', vInput: '',
+    siDate: todayStr(), siSource: '', siAmount: '',
+    exDate: todayStr(), exNote: '', exAmount: '',
     setupLink: '',
   };
   let saveTimer = null;
@@ -259,6 +261,7 @@
   }
   function money(x) { return Math.round(x * 100) / 100; }
   function fmt(n)   { return n.toFixed(2).replace('.', ','); }
+  function esc(s)   { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
   function calcHours(start, end) {
     const [sh,sm] = start.split(':').map(Number);
@@ -309,6 +312,14 @@
   function weekPays(wk)  { return allPayments().filter(p=>p.weekKey===wk); }
   function weekEarned(wk){ return money(weekShifts(wk).reduce((s,sh)=>s+shiftEarned(sh),0)); }
   function weekPaid(wk)  { return money(weekPays(wk).reduce((s,p)=>s+p.amount,0)); }
+
+  // ── STRANA ZARADA + POTROŠNJA (gotovina, odvojeno od Emmezeta duga) ──
+  function allSide()    { return S.data?.sideIncome ?? []; }
+  function allExp()     { return S.data?.expenses   ?? []; }
+  function totalSide()  { return money(allSide().reduce((s,x)=>s+x.amount,0)); }
+  function totalSpent() { return money(allExp().reduce((s,x)=>s+x.amount,0)); }
+  function cashOnHand() { return money(totalSide()-totalSpent()); }
+  function sideSources(){ return [...new Set(allSide().map(x=>(x.source||'').trim()).filter(Boolean))]; }
 
   function allWeeks() {
     const ws=new Set([...allShifts().map(s=>isoWeek(s.date)),...allPayments().map(p=>p.weekKey)]);
@@ -435,10 +446,12 @@
       S.data=off?JSON.parse(off):defaultData(); S.syncErr=true;
       if(off) toast('Offline podaci učitani','info');
     }
+    // migracija: stari data.json bez novih polja
+    if(S.data){ if(!Array.isArray(S.data.sideIncome)) S.data.sideIncome=[]; if(!Array.isArray(S.data.expenses)) S.data.expenses=[]; }
     renderApp();
   }
 
-  function defaultData(){ return {config:{hourlyRate:6.56,ownerName:'Matija'},shifts:[],payments:[]}; }
+  function defaultData(){ return {config:{hourlyRate:6.56,ownerName:'Matija'},shifts:[],payments:[],sideIncome:[],expenses:[]}; }
 
   // ── RENDER ─────────────────────────────────────────────────
   function renderLoading(){
@@ -452,6 +465,7 @@
         <button onclick="go('dashboard')" id="nb-dashboard">${iDash()}<span>Pregled</span></button>
         <button onclick="go('entry')"     id="nb-entry">${iPlus()}<span>Unos</span></button>
         <button onclick="go('verify')"   id="nb-verify">${iCheck()}<span>Provjeri</span></button>
+        <button onclick="go('money')"    id="nb-money">${iMoney()}<span>Novac</span></button>
         <button onclick="go('settings')" id="nb-settings">${iGear()}<span>Postavke</span></button>
       </nav>`;
     renderView();
@@ -461,11 +475,11 @@
 
   function renderView(){
     const mc=document.getElementById('mc'); if(!mc) return;
-    ['dashboard','entry','verify','settings'].forEach(v=>{
+    ['dashboard','entry','verify','money','settings'].forEach(v=>{
       const b=document.getElementById('nb-'+v);
       if(b) b.classList.toggle('active',v===S.view);
     });
-    const views={dashboard:vDash,entry:vEntry,verify:vVerify,settings:vSettings};
+    const views={dashboard:vDash,entry:vEntry,verify:vVerify,money:vMoney,settings:vSettings};
     mc.innerHTML=views[S.view]();
   }
 
@@ -509,6 +523,15 @@
         </div>
         <div class="pbar"><div class="pfill" style="width:${pct}%"></div></div>
       </div>
+
+      ${(totalSide()>0||totalSpent()>0)?`
+      <div class="card mb12">
+        <div class="row">
+          <span class="c-dim small">Stanje gotovine (strana)</span>
+          <span class="fw8 ${cashOnHand()>=0?'c-ok':'c-err'}" style="font-size:18px;">€${fmt(cashOnHand())}</span>
+        </div>
+        <div class="small c-muted mt8">Strana zarada €${fmt(totalSide())} · Potrošeno €${fmt(totalSpent())}</div>
+      </div>`:''}
 
       <div class="sec">Tjedni pregled</div>
       ${weeks.length===0
@@ -699,6 +722,129 @@
     scheduleSave(); S.vInput=''; toast(`Isplata €${fmt(amount)} evidentirana`,'ok'); renderView();
   };
 
+  // ── NOVAC (strana zarada + potrošnja) ──────────────────────
+  function ydayStr(){ const y=new Date(todayStr()+'T00:00:00'); y.setDate(y.getDate()-1); return y.toISOString().split('T')[0]; }
+
+  function vMoney(){
+    const side=totalSide(),spent=totalSpent(),cash=cashOnHand();
+    const sources=sideSources();
+    const yday=ydayStr();
+    const sideList=allSide().slice().sort((a,b)=>b.date.localeCompare(a.date));
+    const expList=allExp().slice().sort((a,b)=>b.date.localeCompare(a.date));
+    return `
+      <div class="hdr"><h1>Novac</h1></div>
+
+      <div class="hero" style="padding:24px 16px 20px;margin-bottom:16px;">
+        <div class="hero-label">Stanje gotovine (strana)</div>
+        <div class="hero-amt ${cash>=0?'zero':''}" style="font-size:46px;">€${fmt(cash)}</div>
+        <div class="hero-sub">Strana zarada €${fmt(side)} · Potrošeno €${fmt(spent)}</div>
+      </div>
+
+      <div class="sec">Dodaj stranu zaradu</div>
+      <div class="card mb16">
+        <div class="fg">
+          <label>Datum</label>
+          <div class="qdate">
+            <button class="${S.siDate===todayStr()?'on':''}" onclick="mDate('si','${todayStr()}')">Danas</button>
+            <button class="${S.siDate===yday?'on':''}" onclick="mDate('si','${yday}')">Jučer</button>
+          </div>
+          <input type="date" id="si-date" value="${S.siDate}" max="${todayStr()}" oninput="readSide()">
+        </div>
+        <div class="fg">
+          <label>Od kud (izvor)</label>
+          <input type="text" id="si-source" value="${esc(S.siSource)}" placeholder="npr. Baustela" autocomplete="off" oninput="readSide()">
+          ${sources.length?`<div class="chips mt8">${sources.map((s,i)=>`<button class="chip ${S.siSource.trim()===s?'on':''}" onclick="mSrc(${i})">${esc(s)}</button>`).join('')}</div>`:''}
+        </div>
+        <div class="fg">
+          <label>Iznos (€)</label>
+          <input type="number" id="si-amount" value="${S.siAmount}" placeholder="0,00" step="0.01" min="0" inputmode="decimal" oninput="readSide()">
+        </div>
+        <button class="btn btn-primary" onclick="addSide()">Dodaj zaradu</button>
+      </div>
+
+      <div class="sec">Dodaj trošak</div>
+      <div class="card mb16">
+        <div class="fg">
+          <label>Datum</label>
+          <div class="qdate">
+            <button class="${S.exDate===todayStr()?'on':''}" onclick="mDate('ex','${todayStr()}')">Danas</button>
+            <button class="${S.exDate===yday?'on':''}" onclick="mDate('ex','${yday}')">Jučer</button>
+          </div>
+          <input type="date" id="ex-date" value="${S.exDate}" max="${todayStr()}" oninput="readExp()">
+        </div>
+        <div class="fg">
+          <label>Na što (opis)</label>
+          <input type="text" id="ex-note" value="${esc(S.exNote)}" placeholder="npr. Hrana, gorivo…" autocomplete="off" oninput="readExp()">
+        </div>
+        <div class="fg">
+          <label>Iznos (€)</label>
+          <input type="number" id="ex-amount" value="${S.exAmount}" placeholder="0,00" step="0.01" min="0" inputmode="decimal" oninput="readExp()">
+        </div>
+        <button class="btn btn-primary" onclick="addExp()">Dodaj trošak</button>
+      </div>
+
+      <div class="sec">Strana zarada</div>
+      ${sideList.length===0?'<div class="empty">Nema unosa.</div>':`<div class="card mb16" style="padding:6px 16px;">${sideList.map(x=>`
+        <div class="sr">
+          <div class="sr-l">
+            <div class="sr-date">${esc(x.source||'—')}</div>
+            <div class="sr-time">${fmtDate(x.date)}</div>
+          </div>
+          <div class="sr-r">
+            <div class="sr-amt c-purple">+€${fmt(x.amount)}</div>
+            <button class="del" onclick="delSide('${x.id}')">✕</button>
+          </div>
+        </div>`).join('')}</div>`}
+
+      <div class="sec">Potrošnja</div>
+      ${expList.length===0?'<div class="empty">Nema troškova.</div>':`<div class="card mb16" style="padding:6px 16px;">${expList.map(x=>`
+        <div class="sr">
+          <div class="sr-l">
+            <div class="sr-date">${esc(x.note||'Trošak')}</div>
+            <div class="sr-time">${fmtDate(x.date)}</div>
+          </div>
+          <div class="sr-r">
+            <div class="sr-amt c-err">−€${fmt(x.amount)}</div>
+            <button class="del" onclick="delExp('${x.id}')">✕</button>
+          </div>
+        </div>`).join('')}</div>`}`;
+  }
+
+  function readSide(){
+    const d=document.getElementById('si-date'),s=document.getElementById('si-source'),a=document.getElementById('si-amount');
+    if(d)S.siDate=d.value; if(s)S.siSource=s.value; if(a)S.siAmount=a.value;
+  }
+  function readExp(){
+    const d=document.getElementById('ex-date'),n=document.getElementById('ex-note'),a=document.getElementById('ex-amount');
+    if(d)S.exDate=d.value; if(n)S.exNote=n.value; if(a)S.exAmount=a.value;
+  }
+  window.mDate=function(which,d){ if(which==='si'){readSide();S.siDate=d;} else {readExp();S.exDate=d;} renderView(); };
+  window.mSrc=function(i){ readSide(); S.siSource=sideSources()[i]||''; renderView(); };
+
+  window.addSide=function(){
+    readSide();
+    const amt=parseFloat(String(S.siAmount).replace(',','.'));
+    if(!S.siDate){toast('Odaberi datum','err');return;}
+    if(!amt||amt<=0){toast('Unesi valjani iznos','err');return;}
+    S.data.sideIncome.push({id:uid(),date:S.siDate,amount:money(amt),source:(S.siSource||'').trim()});
+    S.data.sideIncome.sort((a,b)=>a.date.localeCompare(b.date));
+    scheduleSave(); toast(`Strana zarada +€${fmt(money(amt))}`,'ok');
+    S.siAmount=''; S.siSource=''; renderView();
+  };
+  window.delSide=function(id){ if(!confirm('Obriši stranu zaradu?'))return; S.data.sideIncome=S.data.sideIncome.filter(x=>x.id!==id); scheduleSave(); renderView(); };
+
+  window.addExp=function(){
+    readExp();
+    const amt=parseFloat(String(S.exAmount).replace(',','.'));
+    if(!S.exDate){toast('Odaberi datum','err');return;}
+    if(!amt||amt<=0){toast('Unesi valjani iznos','err');return;}
+    S.data.expenses.push({id:uid(),date:S.exDate,amount:money(amt),note:(S.exNote||'').trim()});
+    S.data.expenses.sort((a,b)=>a.date.localeCompare(b.date));
+    scheduleSave(); toast(`Trošak −€${fmt(money(amt))}`,'ok');
+    S.exAmount=''; S.exNote=''; renderView();
+  };
+  window.delExp=function(id){ if(!confirm('Obriši trošak?'))return; S.data.expenses=S.data.expenses.filter(x=>x.id!==id); scheduleSave(); renderView(); };
+
   // ── SETTINGS ───────────────────────────────────────────────
   function vSettings(){
     const cfg=S.data?.config??{};
@@ -817,6 +963,7 @@
   function iDash(){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>`;}
   function iPlus(){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`;}
   function iCheck(){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>`;}
+  function iMoney(){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2.5" y="6" width="19" height="13" rx="2.5"/><path d="M2.5 10.5h19"/><circle cx="17" cy="14.5" r="1.4"/></svg>`;}
   function iGear(){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;}
 
   // ── BOOT ─────────────────────────────────────────────────
