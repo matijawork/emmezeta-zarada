@@ -548,9 +548,9 @@
   // ── DASHBOARD ───────────────────────────────────────────────
   function vDash(){
     const earned=totalEarned(),paid=totalPaid(),debt=cumDebt(),side=totalSide();
+    const total=money(earned+side);
     const sub=debt===0?'Sve isplaćeno':debt<0?'Preplaćeno':'Preostalo za isplatu';
     const debtCls=debt===0?'zero':'';
-    const shifts=allShifts().slice().sort((a,b)=>b.date.localeCompare(a.date)||b.startTime.localeCompare(a.startTime));
     return `
       <div class="hdr">
         <div class="brand-ic">💼</div>
@@ -583,20 +583,12 @@
         <div class="stat-val c-purple">€${fmt(side)}</div>
       </div>`:''}
 
-      <div class="sec">Smjene</div>
-      ${shifts.length===0
-        ?'<div class="empty">Nema smjena.<br>Dodaj prvu u <b>Unos ↓</b></div>'
-        :`<div class="card list">${shifts.map(s=>`
-          <div class="sr">
-            <div class="sr-l">
-              <div class="sr-date">${fmtDate(s.date)}${s.double?' <span class="badge b-sun">+50%</span>':''}</div>
-              <div class="sr-time">${s.startTime}–${s.endTime} · ${calcHours(s.startTime,s.endTime).toFixed(2)}h · €${fmt(shiftRate(s))}/h</div>
-            </div>
-            <div class="sr-r">
-              <div class="sr-amt">€${fmt(shiftEarned(s))}</div>
-              <button class="del" onclick="delShift('${s.id}')">✕</button>
-            </div>
-          </div>`).join('')}</div>`}`;
+      <div class="sec">Ukupna zarada</div>
+      <div class="card" style="text-align:center;padding:24px 16px;border-color:var(--bpurple);">
+        <div class="stat-label" style="margin-bottom:10px;">Sve zajedno (posao + strana)</div>
+        <div class="stat-val c-purple" style="font-size:42px;">€${fmt(total)}</div>
+        <div class="small c-muted mt8">Posao €${fmt(earned)}${side>0?` · Sa strane €${fmt(side)}`:''}</div>
+      </div>`;
   }
 
   window.delShift=function(id){if(!confirm('Obriši smjenu?'))return;S.data.shifts=S.data.shifts.filter(s=>s.id!==id);scheduleSave();renderView();};
