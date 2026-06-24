@@ -3,7 +3,15 @@
     "hourlyRate": 6.56,
     "ownerName": "Matija"
   },
-  "shifts": [],
+  "shifts": [
+    {
+      "id": "8b786d81-0bf2-4e85-b17c-19d70b755943",
+      "date": "2026-06-15",
+      "startTime": "08:00",
+      "endTime": "16:00",
+      "double": false
+    }
+  ],
   "payments": [],
   "sideIncome": []
 }
