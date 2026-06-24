@@ -452,7 +452,6 @@
       if(e.key!=='Enter' || S.cal.open) return;
       const tag=(e.target&&e.target.tagName)||'';
       if(tag==='SELECT'||tag==='TEXTAREA') return;
-      if(e.target && e.target.id==='s-pat'){ e.preventDefault(); window.savePat(); return; }
       if(e.target && e.target.id==='ob-p') return;   // onboarding ima svoj handler
       const map={entry:'saveEntry',verify:'recPay',money:'addSide',settings:'saveCfg'};
       const fn=map[S.view];
@@ -869,8 +868,8 @@
         <div class="ir"><span class="ir-l">Repo</span><span class="ir-v small" style="font-family:monospace;">${OWNER}/${REPO}</span></div>
         <div class="ir"><span class="ir-l">App URL</span><span class="ir-v small c-purple" style="font-family:monospace;">matijawork.github.io/…</span></div>
         <div class="hr"></div>
-        <div class="fg mt8"><label>Promijeni token (ako istekne)</label><input type="password" id="s-pat" placeholder="gho_... ili ghp_..."></div>
-        <button class="btn btn-secondary" onclick="savePat()">Ažuriraj token</button>
+        <div class="small c-muted mb12" style="line-height:1.6;">Odjava briše token i sve lokalne podatke s ovog uređaja. Podaci na GitHubu ostaju netaknuti — prijavom novim tokenom kreće kao nov račun.</div>
+        <button class="btn btn-secondary" onclick="logout()">Odjava — obriši s uređaja</button>
       </div>
 
       <div class="sec" style="color:var(--err);">Zona opasnosti</div>
@@ -911,10 +910,11 @@
     navigator.clipboard.writeText(el.textContent).then(()=>toast('Link kopiran!','ok')).catch(()=>toast('Selektiraj tekst ručno','info'));
   };
 
-  window.savePat=function(){
-    const p=document.getElementById('s-pat').value.trim();
-    if(!p){toast('Unesi token','err');return;}
-    localStorage.setItem('gh_pat',p); toast('Token ažuriran','ok');
+  window.logout=function(){
+    if(!confirm('Odjava — briše token i sve lokalne podatke s ovog uređaja. GitHub podaci ostaju. Nastaviti?'))return;
+    saveTimer&&clearTimeout(saveTimer);   // odbaci pending lokalni write
+    localStorage.clear();                  // gh_pat, gh_owner, ez_offline, sve
+    location.reload();                     // re-init → onboarding (čist start)
   };
 
   window.clearAll=function(){
