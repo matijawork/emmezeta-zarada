@@ -31,6 +31,13 @@
       "startTime": "08:00",
       "endTime": "16:00",
       "double": false
+    },
+    {
+      "id": "02136ee4-24aa-4c03-8b88-a379e9a74e76",
+      "date": "2026-06-21",
+      "startTime": "10:00",
+      "endTime": "18:00",
+      "double": true
     }
   ],
   "payments": [],
