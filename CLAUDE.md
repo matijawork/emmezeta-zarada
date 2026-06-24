@@ -1,7 +1,7 @@
 # emmezeta-zarada — Claude Memory
 
 ## Status
-- Zadnja sesija: 2026-06-24 (rework2: tjedni→datumski model, custom kalendar, time dropdowni, +50% satnica, makni trošak)
+- Zadnja sesija: 2026-06-24 (polish: makni mrtvi CSS .pbar/.pfill/.wk*/.vres*, dupli .time-row, unused const START/END; .card.list klasa umjesto inline padding 6px16; esc() na ownerName dash+settings; type=button na cal-day; nav active ::before indikator bar. Verificirano headless Chrome screenshotom dash+entry)
 - Faza: complete (čeka testiranje od Matije)
 
 ## VAŽNO — rework2 (2026-06-24)

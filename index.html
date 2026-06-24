@@ -40,8 +40,9 @@
 
     /* NAV */
     nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(0,0,0,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
-    nav button{flex:1;padding:11px 4px 10px;background:none;border:none;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:600;letter-spacing:.02em;transition:color .2s}
+    nav button{position:relative;flex:1;padding:11px 4px 10px;background:none;border:none;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:600;letter-spacing:.02em;transition:color .2s}
     nav button.active{color:var(--pl)}
+    nav button.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:26px;height:2px;border-radius:0 0 2px 2px;background:var(--pl);box-shadow:0 0 8px var(--pl)}
     nav button.active svg{filter:drop-shadow(0 0 6px rgba(167,139,250,.5))}
     nav button svg{width:22px;height:22px;stroke-width:1.7}
 
@@ -74,10 +75,7 @@
 
     /* CARDS */
     .card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px}
-
-    /* PROGRESS */
-    .pbar{height:4px;background:var(--s3);border-radius:2px;overflow:hidden;margin-top:8px}
-    .pfill{height:100%;background:linear-gradient(90deg,var(--p),var(--pl));border-radius:2px;transition:width .5s ease}
+    .card.list{padding:6px 16px}
 
     /* FORM */
     .fg{margin-bottom:14px}
@@ -113,20 +111,6 @@
     .badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block}
     .b-sun{background:rgba(109,40,217,.2);color:var(--acc);border:1px solid rgba(109,40,217,.3)}
 
-    /* WEEK ITEMS */
-    .wk{background:var(--s1);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:8px;overflow:hidden;transition:border-color .2s}
-    .wk.open{border-color:var(--bpurple)}
-    .wk-hdr{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;user-select:none;transition:background .15s}
-    .wk-hdr:active{background:var(--s2)}
-    .wk-title{font-size:14px;font-weight:600;letter-spacing:-.01em}
-    .wk-sub{font-size:12px;margin-top:2px}
-    .wk-right{display:flex;align-items:center;gap:10px}
-    .wk-amt{font-size:16px;font-weight:800;color:var(--pl)}
-    .wk-arr{color:var(--muted);font-size:12px;transition:transform .2s}
-    .wk.open .wk-arr{transform:rotate(90deg)}
-    .wk-body{border-top:1px solid var(--border);padding:12px 16px;display:none}
-    .wk-body.open{display:block}
-
     /* SHIFT ROW */
     .sr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
     .sr:last-of-type{border-bottom:none}
@@ -143,17 +127,6 @@
     .ir:last-child{border-bottom:none}
     .ir-l{color:var(--dim)}
     .ir-v{font-weight:600}
-
-    /* VERIFY RESULT */
-    .vres{border-radius:var(--rs);padding:22px 16px;margin-bottom:16px;text-align:center}
-    .vres.ok{background:var(--okd);border:1px solid rgba(34,197,94,.3)}
-    .vres.bad{background:var(--errd);border:1px solid rgba(239,68,68,.3)}
-    .vres-icon{font-size:40px;margin-bottom:10px}
-    .vres-txt{font-size:22px;font-weight:800;letter-spacing:-.02em}
-    .vres-sub{font-size:13px;color:var(--dim);margin-top:8px;line-height:1.5}
-
-    /* TIME ROW */
-    .time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
     /* QUICK CHIPS */
     .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -261,8 +234,6 @@
   const FILE  = 'data.json';
   const GH    = 'https://api.github.com';
   const APP_URL = 'https://matijawork.github.io/emmezeta-zarada/';
-  const START = '2026-06-15';
-  const END   = '2026-09-30';
   const MAXH  = 8;            // max dozvoljeni sati po smjeni → crveno upozorenje
   const PRESETS = [['08:00','16:00'],['09:00','17:00'],['10:00','18:00'],['12:00','18:00'],['12:00','20:00']];
   const PREMIUM = 1.5;       // uvećana satnica: +50% (ne dvostruka)
@@ -336,7 +307,7 @@
     for(let day=1;day<=daysIn;day++){
       const ds=`${yr}-${String(mo).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
       const cls=(ds===sel?'sel ':'')+(ds===today?'today':'');
-      cells+=`<button class="cal-day ${cls.trim()}" onclick="calPick('${ds}')">${day}</button>`;
+      cells+=`<button type="button" class="cal-day ${cls.trim()}" onclick="calPick('${ds}')">${day}</button>`;
     }
     return `
       <div class="cal-ov" onclick="if(event.target===this)closeCal()">
@@ -582,7 +553,7 @@
       <div class="hdr">
         <h1>Emmezeta 2026</h1>
         <div style="display:flex;align-items:center;gap:10px;">
-          <span class="small c-muted">${S.data?.config?.ownerName||''}</span>
+          <span class="small c-muted">${esc(S.data?.config?.ownerName||'')}</span>
           <div class="sdot${S.syncErr?' err':''}" id="sdot"></div>
         </div>
       </div>
@@ -613,7 +584,7 @@
       <div class="sec">Smjene</div>
       ${shifts.length===0
         ?'<div class="empty">Nema smjena.<br>Dodaj prvu u <b>Unos ↓</b></div>'
-        :`<div class="card" style="padding:6px 16px;">${shifts.map(s=>`
+        :`<div class="card list">${shifts.map(s=>`
           <div class="sr">
             <div class="sr-l">
               <div class="sr-date">${fmtDate(s.date)}${s.double?' <span class="badge b-sun">+50%</span>':''}</div>
@@ -760,7 +731,7 @@
       </div>
 
       <div class="sec">Sve isplate</div>
-      ${pays.length===0?'<div class="empty">Nema isplata.</div>':`<div class="card mb16" style="padding:6px 16px;">${pays.map(p=>`
+      ${pays.length===0?'<div class="empty">Nema isplata.</div>':`<div class="card list mb16">${pays.map(p=>`
         <div class="sr">
           <div class="sr-l">
             <div class="sr-date">💳 ${fmtDate(p.date)}</div>
@@ -819,7 +790,7 @@
       </div>
 
       <div class="sec">Sve sa strane</div>
-      ${sideList.length===0?'<div class="empty">Nema unosa.<br>Dodaj prvu zaradu gore ↑</div>':`<div class="card mb16" style="padding:6px 16px;">${sideList.map(x=>`
+      ${sideList.length===0?'<div class="empty">Nema unosa.<br>Dodaj prvu zaradu gore ↑</div>':`<div class="card list mb16">${sideList.map(x=>`
         <div class="sr">
           <div class="sr-l">
             <div class="sr-date">${esc(x.source||'—')}</div>
@@ -860,7 +831,7 @@
 
       <div class="sec">Osobni podaci</div>
       <div class="card">
-        <div class="fg"><label>Ime</label><input type="text" id="s-name" value="${cfg.ownerName||''}" placeholder="Matija"></div>
+        <div class="fg"><label>Ime</label><input type="text" id="s-name" value="${esc(cfg.ownerName||'')}" placeholder="Matija"></div>
         <div class="fg">
           <label>Satnica (€/h)</label>
           <input type="number" id="s-rate" value="${cfg.hourlyRate??6.56}" step="0.01" min="0.01">
@@ -909,7 +880,7 @@
   }
 
   function dataBlock(title,items){
-    return `<div class="card mb12" style="padding:6px 16px;">
+    return `<div class="card list mb12">
       <div class="ir"><span class="ir-l fw8">${title}</span><span class="ir-v c-muted small">${items.length}</span></div>
       ${items.length===0?'<div class="small c-muted" style="padding:8px 0;">Nema unosa</div>':items.map(it=>`
         <div class="sr">
