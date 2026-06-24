@@ -85,5 +85,7 @@
 - Sve kalkulacije su DERIVIRANE iz shifts — sprema se id/date/startTime/endTime/double
 - weekKey u payments mora biti isoWeek(date) format (npr. "2026-W26")
 - Ako GitHub sync ne radi → podaci lokalno u localStorage 'ez_offline', sync pri sljedećem init()
+- LIVE SYNC (2026-06-24): refresh() auto-pulla data.json na focus/visibilitychange + setInterval 20s (startLive()). Guard: ne pulla ako S.syncing||saveTimer (lokalno spremanje) ni ako je INPUT/SELECT/TEXTAREA fokusiran. saveTimer=null nakon fire (inače guard blokira zauvijek). Cross-device near-realtime.
+- iPhone: viewport-fit=cover + apple-mobile-web-app meta + safe-area-inset (main/toasts/nav). Inputi 16px → nema iOS zoom.
 - classifier blokira komande s gh tokenima — korisnik mora sam pokrenuti u Terminal.app
 - Tab Novac: inputi koriste readSide()/readExp() (DOM→state na oninput) BEZ re-rendera dok tipkaš (izbjegava gubljenje fokusa). Re-render samo na chip/Danas-Jučer tap i Dodaj/briši. Chip izvora šalje INDEX (mSrc(i)), ne string → sigurno za apostrofe. esc() escapea sav user tekst u HTML.
