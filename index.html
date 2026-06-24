@@ -176,12 +176,6 @@
     .warn-box{background:var(--errd);border:1px solid rgba(239,68,68,.35);border-radius:var(--rs);padding:13px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:#fca5a5}
     .warn-box .wi{font-size:18px;flex-shrink:0}
 
-    /* QUICK DATE */
-    .qdate{display:flex;gap:8px;margin-bottom:8px}
-    .qdate button{flex:1;padding:9px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--dim);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
-    .qdate button:active{transform:scale(.97)}
-    .qdate button.on{background:var(--bpurple);border-color:var(--p);color:var(--acc)}
-
     /* TOAST */
     #toasts{position:fixed;top:calc(16px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;max-width:440px;width:calc(100% - 32px);pointer-events:none}
     .toast{padding:12px 16px;border-radius:var(--rs);font-size:14px;font-weight:500;animation:tslide .25s ease;pointer-events:all;backdrop-filter:blur(12px)}
@@ -226,17 +220,12 @@
     .copy-btn{background:var(--s3);border:1px solid var(--border);color:var(--pl);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:background .15s}
     .copy-btn:hover{background:var(--bpurple)}
 
-    /* DAY PICKER (scroll chips) */
-    .daypick{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-    .daypick::-webkit-scrollbar{display:none}
-    .dayc{flex:0 0 auto;min-width:60px;padding:10px 8px;background:var(--s2);border:1px solid var(--border);border-radius:12px;color:var(--dim);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:background .15s,border-color .15s,transform .1s}
-    .dayc:active{transform:scale(.94)}
-    .dayc.on{background:var(--bpurple);border-color:var(--p);color:var(--acc)}
-    .dc-dow{font-size:11px;font-weight:600;text-transform:lowercase}
-    .dc-num{font-size:17px;font-weight:800;letter-spacing:-.02em}
-
-    /* BIGGER MANUAL TIME INPUTS */
-    .time-row input[type=time]{text-align:center;font-size:20px;font-weight:700;padding:15px 8px;letter-spacing:.02em}
+    /* TIME DROPDOWNS (ljubičasti, 15-min) */
+    .time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .time-sel{display:grid;grid-template-columns:1.2fr 1fr;gap:6px}
+    .time-sel select{color:var(--pl);font-weight:800;font-size:18px;text-align:center;text-align-last:center;border-color:var(--bpurple);background-color:rgba(124,58,237,.06);padding:14px 8px}
+    .time-sel select:focus{border-color:var(--pl);box-shadow:0 0 0 3px var(--glow2)}
+    .tlabel{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--pl);margin-bottom:8px;opacity:.85}
 
     /* DATE FIELD (otvara custom kalendar) */
     .datefield{width:100%;padding:14px 15px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:16px;font-weight:600;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:border-color .2s}
@@ -286,9 +275,8 @@
     view: 'dashboard',
     data: null, sha: null,
     syncing: false, syncErr: false,
-    openWeeks: new Set(),
-    eDate: todayStr(), eStart: '07:00', eEnd: '15:00', eDouble: false,
-    vWeek: '', vInput: '',
+    eDate: todayStr(), eStart: '08:00', eEnd: '16:00', eDouble: false,
+    pDate: todayStr(), pAmount: '',
     siDate: todayStr(), siSource: '', siAmount: '',
     cal: { open:false, target:null, month:'' },
     setupLink: '',
@@ -323,21 +311,6 @@
     return `${thu.getFullYear()}-W${String(Math.ceil(((thu-jan1)/86400000+1)/7)).padStart(2,'0')}`;
   }
 
-  function weekMonday(wk) {
-    const [yr,wPart]=wk.split('-W'); const wn=parseInt(wPart);
-    const jan4=new Date(`${yr}-01-04T00:00:00`);
-    const dow=jan4.getDay()||7;
-    const mon=new Date(jan4); mon.setDate(jan4.getDate()-dow+1+(wn-1)*7);
-    return mon;
-  }
-
-  function weekLabel(wk) {
-    const mon=weekMonday(wk); const sun=new Date(mon); sun.setDate(mon.getDate()+6);
-    const d1=mon.getDate(),m1=MONTHS[mon.getMonth()];
-    const d2=sun.getDate(),m2=MONTHS[sun.getMonth()];
-    return mon.getMonth()===sun.getMonth() ? `${d1}. – ${d2}. ${m1}` : `${d1}. ${m1} – ${d2}. ${m2}`;
-  }
-
   function fmtDate(ds) {
     const d=new Date(ds+'T00:00:00');
     return `${DAYS[d.getDay()]}, ${d.getDate()}. ${MONTHS[d.getMonth()]}`;
@@ -356,7 +329,7 @@
     const [yr,mo]=S.cal.month.split('-').map(Number);
     const startDow=(new Date(yr,mo-1,1).getDay()||7)-1;   // 0 = ponedjeljak
     const daysIn=new Date(yr,mo,0).getDate();
-    const sel=S.cal.target==='shift'?S.eDate:S.siDate;
+    const sel=calVal();
     const today=todayStr();
     let cells='';
     for(let i=0;i<startDow;i++) cells+='<div class="cal-empty"></div>';
@@ -379,10 +352,11 @@
         </div>
       </div>`;
   }
+  function calVal(){ return S.cal.target==='shift'?S.eDate:S.cal.target==='pay'?S.pDate:S.siDate; }
   window.openCal=function(target){
-    if(target==='side' && typeof readSide==='function') readSide();  // sačuvaj utipkano prije re-rendera
-    const cur=target==='shift'?S.eDate:S.siDate;
-    S.cal={open:true,target,month:cur.slice(0,7)};
+    if(target==='side' && typeof readSide==='function') readSide();  // sačuvaj utipkano
+    if(target==='pay'  && typeof readPay==='function')  readPay();
+    S.cal={open:true,target,month:calVal().slice(0,7)};
     renderView();
   };
   window.closeCal=function(){ S.cal.open=false; renderView(); };
@@ -393,7 +367,9 @@
     renderView();
   };
   window.calPick=function(ds){
-    if(S.cal.target==='shift') S.eDate=ds; else S.siDate=ds;
+    if(S.cal.target==='shift') S.eDate=ds;
+    else if(S.cal.target==='pay') S.pDate=ds;
+    else S.siDate=ds;
     S.cal.open=false; renderView();
   };
 
@@ -402,21 +378,11 @@
   function totalEarned() { return money(allShifts().reduce((s,sh)=>s+shiftEarned(sh),0)); }
   function totalPaid()   { return money(allPayments().reduce((s,p)=>s+p.amount,0)); }
   function cumDebt()     { return money(totalEarned()-totalPaid()); }
-  function weekShifts(wk){ return allShifts().filter(s=>isoWeek(s.date)===wk); }
-  function weekPays(wk)  { return allPayments().filter(p=>p.weekKey===wk); }
-  function weekEarned(wk){ return money(weekShifts(wk).reduce((s,sh)=>s+shiftEarned(sh),0)); }
-  function weekPaid(wk)  { return money(weekPays(wk).reduce((s,p)=>s+p.amount,0)); }
 
   // ── STRANA ZARADA (odvojeno od Emmezeta duga) ──
   function allSide()    { return S.data?.sideIncome ?? []; }
   function totalSide()  { return money(allSide().reduce((s,x)=>s+x.amount,0)); }
   function sideSources(){ return [...new Set(allSide().map(x=>(x.source||'').trim()).filter(Boolean))]; }
-
-  function allWeeks() {
-    const ws=new Set([...allShifts().map(s=>isoWeek(s.date)),...allPayments().map(p=>p.weekKey)]);
-    return [...ws].sort();
-  }
-
 
   function uid() {
     return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
@@ -574,7 +540,7 @@
       <nav>
         <button onclick="go('dashboard')" id="nb-dashboard">${iDash()}<span>Pregled</span></button>
         <button onclick="go('entry')"     id="nb-entry">${iPlus()}<span>Unos</span></button>
-        <button onclick="go('verify')"   id="nb-verify">${iCheck()}<span>Provjeri</span></button>
+        <button onclick="go('verify')"   id="nb-verify">${iCheck()}<span>Isplata</span></button>
         <button onclick="go('money')"    id="nb-money">${iMoney()}<span>Novac</span></button>
         <button onclick="go('settings')" id="nb-settings">${iGear()}<span>Postavke</span></button>
       </nav>`;
@@ -589,16 +555,16 @@
       const b=document.getElementById('nb-'+v);
       if(b) b.classList.toggle('active',v===S.view);
     });
-    const views={dashboard:vDash,entry:vEntry,verify:vVerify,money:vMoney,settings:vSettings};
+    const views={dashboard:vDash,entry:vEntry,verify:vPay,money:vMoney,settings:vSettings};
     mc.innerHTML=views[S.view]();
   }
 
   // ── DASHBOARD ───────────────────────────────────────────────
   function vDash(){
-    const earned=totalEarned(),paid=totalPaid(),debt=cumDebt();
-    const weeks=allWeeks().slice().reverse();
+    const earned=totalEarned(),paid=totalPaid(),debt=cumDebt(),side=totalSide();
     const sub=debt===0?'Sve isplaćeno':debt<0?'Preplaćeno':'Preostalo za isplatu';
     const debtCls=debt===0?'zero':'';
+    const shifts=allShifts().slice().sort((a,b)=>b.date.localeCompare(a.date)||b.startTime.localeCompare(a.startTime));
     return `
       <div class="hdr">
         <h1>Emmezeta 2026</h1>
@@ -625,83 +591,40 @@
         </div>
       </div>
 
-
-      ${totalSide()>0?`
-      <div class="card mb12">
-        <div class="row">
-          <span class="c-dim small">Zarađeno sa strane</span>
-          <span class="fw8 c-purple" style="font-size:18px;">€${fmt(totalSide())}</span>
-        </div>
+      ${side>0?`
+      <div class="stat mb12">
+        <div class="stat-label">Zarađeno sa strane</div>
+        <div class="stat-val c-purple">€${fmt(side)}</div>
       </div>`:''}
 
-      <div class="sec">Tjedni pregled</div>
-      ${weeks.length===0
+      <div class="sec">Smjene</div>
+      ${shifts.length===0
         ?'<div class="empty">Nema smjena.<br>Dodaj prvu u <b>Unos ↓</b></div>'
-        :weeks.map(wk=>wkRow(wk)).join('')}`;
+        :`<div class="card" style="padding:6px 16px;">${shifts.map(s=>`
+          <div class="sr">
+            <div class="sr-l">
+              <div class="sr-date">${fmtDate(s.date)}${s.double?' <span class="badge b-sun">+50%</span>':''}</div>
+              <div class="sr-time">${s.startTime}–${s.endTime} · ${calcHours(s.startTime,s.endTime).toFixed(2)}h · €${fmt(shiftRate(s))}/h</div>
+            </div>
+            <div class="sr-r">
+              <div class="sr-amt">€${fmt(shiftEarned(s))}</div>
+              <button class="del" onclick="delShift('${s.id}')">✕</button>
+            </div>
+          </div>`).join('')}</div>`}`;
   }
 
-  function wkRow(wk){
-    const shifts=weekShifts(wk).sort((a,b)=>a.date.localeCompare(b.date));
-    const pays=weekPays(wk);
-    const earned=weekEarned(wk),paid=weekPaid(wk),bal=money(earned-paid);
-    const open=S.openWeeks.has(wk);
-    const balCls=bal<=0?'c-ok':'c-err';
-    const balTxt=bal<=0?(bal<0?`preplaćeno €${fmt(Math.abs(bal))}`:'✓ isplaćeno'):`dug: €${fmt(bal)}`;
-    return `
-      <div class="wk${open?' open':''}">
-        <div class="wk-hdr" onclick="toggleWk('${wk}')">
-          <div>
-            <div class="wk-title">${weekLabel(wk)}</div>
-            <div class="wk-sub ${balCls}">${balTxt}</div>
-          </div>
-          <div class="wk-right">
-            <div class="wk-amt">€${fmt(earned)}</div>
-            <div class="wk-arr">▶</div>
-          </div>
-        </div>
-        <div class="wk-body${open?' open':''}">
-          ${shifts.map(s=>`
-            <div class="sr">
-              <div class="sr-l">
-                <div class="sr-date">${fmtDate(s.date)}${s.double?' <span class="badge b-sun">+50%</span>':''}</div>
-                <div class="sr-time">${s.startTime}–${s.endTime} · ${calcHours(s.startTime,s.endTime).toFixed(2)}h · €${fmt(shiftRate(s))}/h</div>
-              </div>
-              <div class="sr-r">
-                <div class="sr-amt">€${fmt(shiftEarned(s))}</div>
-                <button class="del" onclick="delShift('${s.id}')">✕</button>
-              </div>
-            </div>`).join('')}
-          ${pays.map(p=>`
-            <div class="sr" style="color:var(--ok);">
-              <div class="sr-l">
-                <div class="sr-date">💳 Isplata — ${p.date}</div>
-                ${p.note?`<div class="sr-time">${p.note}</div>`:''}
-              </div>
-              <div class="sr-r">
-                <div class="sr-amt fw8">+€${fmt(p.amount)}</div>
-                <button class="del" onclick="delPay('${p.id}')" style="color:var(--muted);">✕</button>
-              </div>
-            </div>`).join('')}
-          <div class="hr"></div>
-          <div class="ir"><span class="ir-l">Zarađeno</span><span class="ir-v c-purple">€${fmt(earned)}</span></div>
-          <div class="ir"><span class="ir-l">Isplaćeno</span><span class="ir-v c-ok">€${fmt(paid)}</span></div>
-          <div class="ir"><span class="ir-l">Tjedni dug</span><span class="ir-v ${balCls}">€${fmt(bal)}</span></div>
-        </div>
-      </div>`;
-  }
-
-  window.toggleWk=function(wk){S.openWeeks.has(wk)?S.openWeeks.delete(wk):S.openWeeks.add(wk);renderView();};
   window.delShift=function(id){if(!confirm('Obriši smjenu?'))return;S.data.shifts=S.data.shifts.filter(s=>s.id!==id);scheduleSave();renderView();};
   window.delPay=function(id){if(!confirm('Obriši isplatu?'))return;S.data.payments=S.data.payments.filter(p=>p.id!==id);scheduleSave();renderView();};
 
   // ── ENTRY ──────────────────────────────────────────────────
-  function recentDays(n){
-    const out=[]; const base=new Date(todayStr()+'T00:00:00');
-    for(let i=0;i<n;i++){
-      const dt=new Date(base); dt.setDate(base.getDate()-i);
-      out.push({ds:dt.toISOString().split('T')[0], dow:i===0?'Danas':i===1?'Jučer':DAYS[dt.getDay()], num:dt.getDate()+'.'});
-    }
-    return out;
+  function timeSelects(which,val){
+    const [h,m]=val.split(':');
+    const mm=['00','15','30','45'].includes(m)?m:'00';
+    const hours=Array.from({length:24},(_,i)=>String(i).padStart(2,'0'));
+    return `<div class="time-sel">
+      <select onchange="eSetTime('${which}','h',this.value)">${hours.map(x=>`<option value="${x}"${x===h?' selected':''}>${x}</option>`).join('')}</select>
+      <select onchange="eSetTime('${which}','m',this.value)">${['00','15','30','45'].map(x=>`<option value="${x}"${x===mm?' selected':''}>${x}</option>`).join('')}</select>
+    </div>`;
   }
 
   function vEntry(){
@@ -715,10 +638,7 @@
 
       <div class="fg">
         <label>Datum</label>
-        <div class="daypick">
-          ${recentDays(10).map(rd=>`<button class="dayc ${d===rd.ds?'on':''}" onclick="eSet('date','${rd.ds}')"><span class="dc-dow">${rd.dow}</span><span class="dc-num">${rd.num}</span></button>`).join('')}
-        </div>
-        <div class="mt8">${dateField('shift',d)}</div>
+        ${dateField('shift',d)}
       </div>
 
       <div class="fg">
@@ -730,8 +650,8 @@
 
       <div class="fg">
         <div class="time-row">
-          <div><label>Početak</label><input type="time" value="${st}" oninput="eSet('start',this.value)"></div>
-          <div><label>Kraj</label><input type="time" value="${en}" oninput="eSet('end',this.value)"></div>
+          <div><div class="tlabel">Početak</div>${timeSelects('start',st)}</div>
+          <div><div class="tlabel">Kraj</div>${timeSelects('end',en)}</div>
         </div>
       </div>
 
@@ -765,7 +685,13 @@
       ${calOverlay()}`;
   }
 
-  window.eSet=function(f,v){if(f==='date')S.eDate=v;if(f==='start')S.eStart=v;if(f==='end')S.eEnd=v;if(f==='double')S.eDouble=v;renderView();};
+  window.eSet=function(f,v){if(f==='date')S.eDate=v;if(f==='double')S.eDouble=v;renderView();};
+  window.eSetTime=function(which,part,v){
+    const key=which==='start'?'eStart':'eEnd';
+    let [h,m]=S[key].split(':');
+    if(part==='h')h=v; else m=v;
+    S[key]=`${h}:${m}`; renderView();
+  };
   window.ePreset=function(a,b){S.eStart=a;S.eEnd=b;renderView();};
   window.saveEntry=function(){
     const{eDate:date,eStart:startTime,eEnd:endTime,eDouble:double}=S;
@@ -777,65 +703,73 @@
     S.eDouble=false; renderView();
   };
 
-  // ── VERIFY ─────────────────────────────────────────────────
-  function curWeek(){ const weeks=allWeeks(); return S.vWeek||(weeks.length?weeks[weeks.length-1]:''); }
+  // ── ISPLATA ────────────────────────────────────────────────
+  function readPay(){ const a=document.getElementById('p-amount'); if(a)S.pAmount=a.value; }
 
-  function vresHTML(){
-    const wk=curWeek(); if(!wk) return '';
-    const earned=weekEarned(wk),paid=weekPaid(wk),rem=money(earned-paid);
-    const inp=parseFloat(String(S.vInput).replace(',','.'))||0;
-    if(!S.vInput||inp<=0) return '';
-    const diff=money(rem-inp), newDebt=money(cumDebt()-inp), ok=diff===0;
-    return `
-      <div class="vres ${ok?'ok':'bad'}">
-        <div class="vres-icon">${ok?'✅':'❌'}</div>
-        <div class="vres-txt">${ok?'Točno isplaćeno!':diff>0?`Premalo za €${fmt(diff)}`:`Previše za €${fmt(Math.abs(diff))}`}</div>
-        <div class="vres-sub">Kumulativni dug nakon isplate:<br>
-          <strong style="color:${newDebt<=0?'var(--ok)':'var(--err)'}">€${fmt(Math.max(0,newDebt))}</strong>
-          ${newDebt<0?`<br><span class="c-warn">⚠️ Preplaćeno za €${fmt(Math.abs(newDebt))}</span>`:''}
-        </div>
-      </div>
-      <button class="btn btn-primary mb16" onclick="recPay('${wk}',${inp})">Evidentiraj isplatu €${fmt(inp)}</button>`;
+  function presHTML(){
+    const amt=parseFloat(String(S.pAmount).replace(',','.'))||0;
+    if(!S.pAmount||amt<=0) return '';
+    const newDebt=money(cumDebt()-amt);
+    return `<div class="card mb12" style="border-color:var(--bpurple);">
+      <div class="ir"><span class="ir-l">Dug sad</span><span class="ir-v c-purple">€${fmt(cumDebt())}</span></div>
+      <div class="ir"><span class="ir-l">Isplata</span><span class="ir-v c-ok">−€${fmt(amt)}</span></div>
+      <div class="ir"><span class="ir-l">Dug nakon isplate</span><span class="ir-v fw8 ${newDebt<=0?'c-ok':'c-err'}">€${fmt(Math.max(0,newDebt))}</span></div>
+      ${newDebt<0?`<div class="small c-warn mt8">⚠️ Preplaćeno za €${fmt(Math.abs(newDebt))}</div>`:''}
+    </div>`;
   }
 
-  function vVerify(){
-    const weeks=allWeeks();
-    const wk=curWeek();
-    const earned=wk?weekEarned(wk):0,paid=wk?weekPaid(wk):0,rem=money(earned-paid);
+  function vPay(){
+    const debt=cumDebt();
+    const pays=allPayments().slice().sort((a,b)=>b.date.localeCompare(a.date));
     return `
-      <div class="hdr"><h1>Provjeri isplatu</h1></div>
-      <div class="fg">
-        <label>Tjedan</label>
-        <select onchange="vSet('week',this.value)">
-          ${weeks.length===0?'<option value="">Nema podataka</option>':weeks.slice().reverse().map(w=>`<option value="${w}"${w===wk?' selected':''}>${weekLabel(w)} — €${fmt(weekEarned(w))}</option>`).join('')}
-        </select>
-      </div>
-      ${wk?`
-        <div class="card mb12">
-          <div class="ir"><span class="ir-l">Zarađeno taj tjedan</span><span class="ir-v c-purple">€${fmt(earned)}</span></div>
-          <div class="ir"><span class="ir-l">Već isplaćeno</span><span class="ir-v c-ok">€${fmt(paid)}</span></div>
-          <div class="ir"><span class="ir-l">Preostalo za platiti</span><span class="ir-v fw8 ${rem>0?'c-err':'c-ok'}">€${fmt(rem)}</span></div>
-        </div>`:''}
-      <div class="fg">
-        <label>Iznos koji su roditelji platili (€)</label>
-        <input type="number" id="v-input" placeholder="0,00" step="0.01" min="0" inputmode="decimal" value="${S.vInput}"
-          oninput="vCalc(this.value)"
-          style="font-size:30px;text-align:center;padding:18px;font-weight:800;letter-spacing:-.02em;">
-      </div>
-      <div id="vres">${vresHTML()}</div>
-      <div class="sec">Ukupni kumulativni dug</div>
-      <div class="hero" style="padding:18px 16px;">
+      <div class="hdr"><h1>Isplata</h1></div>
+
+      <div class="hero" style="padding:22px 16px;margin-bottom:16px;">
         <div class="hero-label">Dug roditelja</div>
-        <div class="hero-amt${cumDebt()===0?' zero':''}" style="font-size:38px;">€${fmt(cumDebt())}</div>
-      </div>`;
+        <div class="hero-amt${debt===0?' zero':''}" style="font-size:42px;">€${fmt(debt)}</div>
+        <div class="hero-sub">${debt===0?'Sve isplaćeno':debt<0?'Preplaćeno':'Preostalo za isplatu'}</div>
+      </div>
+
+      <div class="sec">Evidentiraj isplatu</div>
+      <div class="card mb16">
+        <div class="fg">
+          <label>Datum isplate</label>
+          ${dateField('pay',S.pDate)}
+        </div>
+        <div class="fg">
+          <label>Iznos (€)</label>
+          <input type="number" id="p-amount" value="${S.pAmount}" placeholder="0,00" step="0.01" min="0" inputmode="decimal"
+            oninput="pCalc(this.value)" onkeydown="if(event.key==='Enter')recPay()"
+            style="font-size:30px;text-align:center;padding:18px;font-weight:800;letter-spacing:-.02em;">
+        </div>
+        <div id="pres">${presHTML()}</div>
+        <button class="btn btn-primary" onclick="recPay()">Evidentiraj isplatu</button>
+      </div>
+
+      <div class="sec">Sve isplate</div>
+      ${pays.length===0?'<div class="empty">Nema isplata.</div>':`<div class="card mb16" style="padding:6px 16px;">${pays.map(p=>`
+        <div class="sr">
+          <div class="sr-l">
+            <div class="sr-date">💳 ${fmtDate(p.date)}</div>
+            ${p.note?`<div class="sr-time">${esc(p.note)}</div>`:''}
+          </div>
+          <div class="sr-r">
+            <div class="sr-amt c-ok">+€${fmt(p.amount)}</div>
+            <button class="del" onclick="delPay('${p.id}')">✕</button>
+          </div>
+        </div>`).join('')}</div>`}
+      ${calOverlay()}`;
   }
 
-  window.vCalc=function(v){ S.vInput=v; const box=document.getElementById('vres'); if(box) box.innerHTML=vresHTML(); };
-  window.vSet=function(f,v){ if(f==='week'){S.vWeek=v;S.vInput='';renderView();} };
-  window.recPay=function(wk,amount){
-    if(!amount||amount<=0){toast('Unesi valjani iznos','err');return;}
-    S.data.payments.push({id:uid(),date:todayStr(),amount:money(amount),weekKey:wk,note:''});
-    scheduleSave(); S.vInput=''; toast(`Isplata €${fmt(amount)} evidentirana`,'ok'); renderView();
+  window.pCalc=function(v){ S.pAmount=v; const box=document.getElementById('pres'); if(box) box.innerHTML=presHTML(); };
+  window.recPay=function(){
+    readPay();
+    const amt=parseFloat(String(S.pAmount).replace(',','.'));
+    if(!S.pDate){toast('Odaberi datum','err');return;}
+    if(!amt||amt<=0){toast('Unesi valjani iznos','err');return;}
+    S.data.payments.push({id:uid(),date:S.pDate,amount:money(amt),weekKey:isoWeek(S.pDate),note:''});
+    S.data.payments.sort((a,b)=>a.date.localeCompare(b.date));
+    scheduleSave(); S.pAmount=''; toast(`Isplata €${fmt(money(amt))} evidentirana`,'ok'); renderView();
   };
 
   // ── NOVAC (strana zarada) ──────────────────────────────────
@@ -860,12 +794,12 @@
         </div>
         <div class="fg">
           <label>Od kud (izvor)</label>
-          <input type="text" id="si-source" value="${esc(S.siSource)}" placeholder="npr. Baustela" autocomplete="off" oninput="readSide()">
+          <input type="text" id="si-source" value="${esc(S.siSource)}" placeholder="npr. Baustela" autocomplete="off" oninput="readSide()" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('si-amount').focus();}">
           ${sources.length?`<div class="chips mt8">${sources.map((s,i)=>`<button class="chip ${S.siSource.trim()===s?'on':''}" onclick="mSrc(${i})">${esc(s)}</button>`).join('')}</div>`:''}
         </div>
         <div class="fg">
           <label>Iznos (€)</label>
-          <input type="number" id="si-amount" value="${S.siAmount}" placeholder="0,00" step="0.01" min="0" inputmode="decimal" oninput="readSide()"
+          <input type="number" id="si-amount" value="${S.siAmount}" placeholder="0,00" step="0.01" min="0" inputmode="decimal" oninput="readSide()" onkeydown="if(event.key==='Enter')addSide()"
             style="font-size:28px;text-align:center;padding:16px;font-weight:800;letter-spacing:-.02em;">
         </div>
         <button class="btn btn-primary" onclick="addSide()">Dodaj zaradu</button>

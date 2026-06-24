@@ -1,8 +1,18 @@
 # emmezeta-zarada — Claude Memory
 
 ## Status
-- Zadnja sesija: 2026-06-24 (NOVO: tab "Novac" — strana zarada s izvorima + potrošnja, gotovina = strana − potrošeno)
+- Zadnja sesija: 2026-06-24 (rework2: tjedni→datumski model, custom kalendar, time dropdowni, +50% satnica, makni trošak)
 - Faza: complete (čeka testiranje od Matije)
+
+## VAŽNO — rework2 (2026-06-24)
+- ISPLATA više NIJE po tjednima — datumski (kao smjene/strana zarada). Korisnik bira datum kalendarom + iznos. recPay() bez tjedna.
+- Maknut Tjedni pregled s dashboarda → flat lista "Smjene" (sortirana desc, briši po retku)
+- Maknut TROŠAK skroz (Novac tab = samo strana zarada). Nema expenses/cashOnHand/totalSpent.
+- Custom KALENDAR popup (calOverlay/openCal/calPick/calNav, Mon-first, MONTHS_FULL) za: smjenu (target 'shift'), stranu zaradu ('side'), isplatu ('pay'). dateField() = trigger gumb.
+- TIME unos = 2 dropdowna (sat 00-23 + min 00/15/30/45), ljubičasti (.time-sel select). timeSelects()/eSetTime(). Nema više type=time input.
+- Enter shortcut: si-source→fokus iznos, si-amount→addSide, p-amount→recPay
+- Maknute mrtve funkcije: weekShifts/weekPays/weekEarned/weekPaid/allWeeks/weekMonday/weekLabel/wkRow/toggleWk/recentDays/seasonPct + CSS .qdate/.daypick/.dayc
+- isoWeek() ostaje (recPay piše weekKey za back-compat, ali se ne koristi za prikaz)
 
 ## Što je gotovo
 - [x] Git setup + GitHub public repo (matijawork/emmezeta-zarada)
