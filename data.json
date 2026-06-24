@@ -21,6 +21,13 @@
       "note": ""
     }
   ],
-  "sideIncome": [],
+  "sideIncome": [
+    {
+      "id": "78a4117f-a270-4609-bce5-4c05f0ecf15f",
+      "date": "2026-06-24",
+      "amount": 40,
+      "source": "Baustela"
+    }
+  ],
   "expenses": []
 }
