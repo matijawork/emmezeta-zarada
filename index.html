@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Emmezeta">
+  <meta name="apple-mobile-web-app-title" content="Zarada">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>Emmezeta 2026</title>
+  <title>Zarada</title>
   <style>
     :root {
       --bg:       #000000;
@@ -91,12 +91,14 @@
     select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234b5563' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 
     /* BUTTONS */
-    .btn{width:100%;padding:15px;border:none;border-radius:var(--rs);font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.01em;transition:opacity .15s,transform .1s,box-shadow .2s}
-    .btn:active{transform:scale(.97)}
+    .btn{width:100%;padding:16px;border:none;border-radius:var(--rs);font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.01em;transition:transform .12s cubic-bezier(.2,.8,.2,1),box-shadow .25s,filter .2s}
+    .btn:active{transform:scale(.965)}
     .btn:disabled{opacity:.4;cursor:not-allowed}
-    .btn-primary{background:linear-gradient(135deg,var(--pd),var(--p),var(--pl));color:#fff;box-shadow:0 4px 24px rgba(109,40,217,.35)}
-    .btn-primary:hover{box-shadow:0 6px 32px rgba(109,40,217,.5)}
-    .btn-secondary{background:var(--s2);color:var(--dim);border:1px solid var(--border)}
+    .btn-primary{background:linear-gradient(180deg,#9466f6 0%,#7c3aed 52%,#6321c9 100%);color:#fff;font-weight:700;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(0,0,0,.25),0 8px 22px -6px rgba(124,58,237,.65),0 2px 6px rgba(0,0,0,.45)}
+    .btn-primary:hover{filter:brightness(1.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 12px 30px -6px rgba(124,58,237,.75),0 2px 8px rgba(0,0,0,.5)}
+    .btn-primary:active{filter:brightness(.96)}
+    .btn-secondary{background:linear-gradient(180deg,var(--s3),var(--s2));color:var(--text);border:1px solid #2b2b2b;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 2px 8px rgba(0,0,0,.3)}
+    .btn-secondary:active{filter:brightness(.94)}
     .btn-danger{background:var(--errd);color:var(--err);border:1px solid rgba(239,68,68,.3)}
     .btn-sm{padding:9px 16px;font-size:14px;width:auto;border-radius:8px}
 
@@ -160,10 +162,11 @@
     /* ONBOARDING */
     .ob{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
     .ob-glow{position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(109,40,217,.15) 0%,transparent 70%);pointer-events:none}
-    .ob-icon{font-size:56px;margin-bottom:20px;filter:drop-shadow(0 0 20px rgba(167,139,250,.4))}
-    .ob-title{font-size:28px;font-weight:800;letter-spacing:-.03em;text-align:center;background:linear-gradient(135deg,var(--pl),var(--acc));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
-    .ob-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:36px;line-height:1.6}
+    .ob-icon{font-size:40px;width:88px;height:88px;display:flex;align-items:center;justify-content:center;margin-bottom:40px;background:linear-gradient(180deg,var(--s3),var(--s1));border:1px solid var(--bpurple);border-radius:24px;box-shadow:0 12px 40px -8px rgba(124,58,237,.45),inset 0 1px 0 rgba(167,139,250,.15)}
     .ob-form{width:100%;max-width:380px}
+
+    /* BRAND BADGE (header logo) */
+    .brand-ic{font-size:21px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--s3),var(--s1));border:1px solid var(--bpurple);border-radius:13px;box-shadow:0 3px 12px -2px rgba(124,58,237,.3),inset 0 1px 0 rgba(167,139,250,.12)}
 
     /* LOADING */
     .loading{position:fixed;inset:0;background:var(--bg);z-index:150;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
@@ -550,7 +553,7 @@
     const shifts=allShifts().slice().sort((a,b)=>b.date.localeCompare(a.date)||b.startTime.localeCompare(a.startTime));
     return `
       <div class="hdr">
-        <h1>Emmezeta 2026</h1>
+        <div class="brand-ic">💼</div>
         <div style="display:flex;align-items:center;gap:10px;">
           <span class="small c-muted">${esc(S.data?.config?.ownerName||'')}</span>
           <div class="sdot${S.syncErr?' err':''}" id="sdot"></div>
@@ -766,7 +769,7 @@
       <div class="hero" style="padding:24px 16px 20px;margin-bottom:16px;">
         <div class="hero-label">Zarađeno sa strane</div>
         <div class="hero-amt zero" style="font-size:46px;">€${fmt(side)}</div>
-        <div class="hero-sub">Baustela i ostala zarada (van Emmezete)</div>
+        <div class="hero-sub">Baustela i ostala dodatna zarada</div>
       </div>
 
       <div class="sec">Dodaj zaradu</div>
@@ -863,12 +866,11 @@
       ${dataBlock('Strana zarada', allSide().slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>({
         id:x.id, l:esc(x.source||'—'), s:`${fmtDate(x.date)} · €${fmt(x.amount)}`, fn:'delSide'})))}
 
-      <div class="sec">GitHub Sync</div>
+      <div class="sec">Račun</div>
       <div class="card">
-        <div class="ir"><span class="ir-l">Repo</span><span class="ir-v small" style="font-family:monospace;">${OWNER}/${REPO}</span></div>
-        <div class="ir"><span class="ir-l">App URL</span><span class="ir-v small c-purple" style="font-family:monospace;">matijawork.github.io/…</span></div>
+        <div class="ir"><span class="ir-l">Status</span><span class="ir-v small c-ok">Povezano</span></div>
         <div class="hr"></div>
-        <div class="small c-muted mb12" style="line-height:1.6;">Odjava briše token i sve lokalne podatke s ovog uređaja. Podaci na GitHubu ostaju netaknuti — prijavom novim tokenom kreće kao nov račun.</div>
+        <div class="small c-muted mb12" style="line-height:1.6;">Odjava briše token i sve lokalne podatke s ovog uređaja. Podaci u oblaku ostaju netaknuti — prijavom novim tokenom kreće kao nov račun.</div>
         <button class="btn btn-secondary" onclick="logout()">Odjava — obriši s uređaja</button>
       </div>
 
@@ -929,16 +931,12 @@
       <div class="ob">
         <div class="ob-glow"></div>
         <div class="ob-icon">💼</div>
-        <div class="ob-title">Emmezeta 2026</div>
-        <div class="ob-sub">Tracker zarade i isplata<br>15. lipnja – 30. rujna 2026.</div>
         <div class="ob-form">
           <div class="fg">
-            <label>GitHub Token (PAT ili OAuth)</label>
+            <label>GitHub Token</label>
             <input type="password" id="ob-p" placeholder="gho_... ili ghp_..." onkeydown="if(event.key==='Enter')obConn()">
-            <div class="small c-muted mt8" style="line-height:1.6;">
-              Username: <b class="c-purple">${OWNER}</b> (fiksno)<br>
-              Laptop: otvori Terminal → ukucaj <code style="background:var(--s2);padding:1px 5px;border-radius:4px;color:var(--acc);">gh auth token</code> → kopiraj output<br>
-              Mobitel: koristi setup link iz Postavki (laptop)
+            <div class="small c-muted mt8" style="line-height:1.7;">
+              U terminalu pokreni <code style="background:var(--s2);padding:2px 7px;border-radius:6px;color:var(--acc);">gh auth token</code> pa kopiraj rezultat.
             </div>
           </div>
           <button class="btn btn-primary" onclick="obConn()">Spoji →</button>
