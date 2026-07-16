@@ -138,14 +138,6 @@
       "double": false
     }
   ],
-  "payments": [
-    {
-      "id": "743ff5f4-48e1-4be0-81f3-ecadfed28ffa",
-      "date": "2026-07-16",
-      "amount": 5,
-      "weekKey": "2026-W29",
-      "note": ""
-    }
-  ],
+  "payments": [],
   "sideIncome": []
 }
