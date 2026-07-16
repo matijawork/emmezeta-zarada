@@ -238,7 +238,7 @@
   const GH    = 'https://api.github.com';
   const APP_URL = 'https://matijawork.github.io/emmezeta-zarada/';
   const MAXH  = 8;            // max dozvoljeni sati po smjeni → crveno upozorenje
-  const PRESETS = [['08:00','16:00'],['09:00','17:00'],['10:00','18:00'],['12:00','18:00'],['12:00','20:00']];
+  const PRESETS = [['08:00','14:00'],['08:00','16:00'],['09:00','17:00'],['10:00','18:00'],['12:00','18:00'],['12:00','20:00']];
   const PREMIUM = 1.5;       // uvećana satnica: +50% (ne dvostruka)
   const DAYS  = ['ned','pon','uto','sri','čet','pet','sub'];
   const MONTHS= ['sij','velj','ožu','tra','svi','lip','srp','kol','ruj','lis','stu','pro'];
@@ -259,7 +259,8 @@
 
   // ── UTILS ────────────────────────────────────────────────────
   function todayStr() {
-    return new Date().toISOString().split('T')[0];
+    const d=new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
   function money(x) { return Math.round(x * 100) / 100; }
   function fmt(n)   { return n.toFixed(2).replace('.', ','); }
@@ -341,8 +342,10 @@
     renderView();
   };
   window.calPick=function(ds){
-    if(S.cal.target==='shift') S.eDate=ds;
-    else if(S.cal.target==='pay') S.pDate=ds;
+    if(S.cal.target==='shift'){
+      S.eDate=ds;
+      S.eDouble=new Date(ds+'T00:00:00').getDay()===0;
+    } else if(S.cal.target==='pay') S.pDate=ds;
     else S.siDate=ds;
     S.cal.open=false; renderView();
   };
@@ -539,18 +542,16 @@
     const mc=document.getElementById('mc'); if(!mc) return;
     ['dashboard','entry','verify','money','settings'].forEach(v=>{
       const b=document.getElementById('nb-'+v);
-      if(b) b.classList.toggle('active',v===S.view);
+      const isActive=v===S.view||(v==='settings'&&S.view==='stats');
+      if(b) b.classList.toggle('active',isActive);
     });
-    const views={dashboard:vDash,entry:vEntry,verify:vPay,money:vMoney,settings:vSettings};
+    const views={dashboard:vDash,entry:vEntry,verify:vPay,money:vMoney,settings:vSettings,stats:vStats};
     mc.innerHTML=views[S.view]();
   }
 
   // ── DASHBOARD ───────────────────────────────────────────────
   function vDash(){
-    const earned=totalEarned(),paid=totalPaid(),debt=cumDebt(),side=totalSide();
-    const total=money(earned+side);
-    const sub=debt===0?'Sve isplaćeno':debt<0?'Preplaćeno':'Preostalo za isplatu';
-    const debtCls=debt===0?'zero':'';
+    const earned=totalEarned(),side=totalSide(),total=money(earned+side);
     return `
       <div class="hdr">
         <div class="brand-ic">💼</div>
@@ -561,33 +562,19 @@
       </div>
 
       <div class="hero">
-        <div class="hero-label">Dug roditelja</div>
-        <div class="hero-amt ${debtCls}">€${fmt(debt)}</div>
-        <div class="hero-sub ${debt<0?'c-warn':''}">${sub}</div>
+        <div class="hero-label">Ukupno zarađeno</div>
+        <div class="hero-amt zero">€${fmt(total)}</div>
       </div>
 
-      <div class="grid2">
+      <div class="grid2 mb12">
         <div class="stat">
-          <div class="stat-label">Zarađeno</div>
+          <div class="stat-label">Emmezeta</div>
           <div class="stat-val earned">€${fmt(earned)}</div>
         </div>
         <div class="stat">
-          <div class="stat-label">Isplaćeno</div>
-          <div class="stat-val paid">€${fmt(paid)}</div>
+          <div class="stat-label">Sa strane</div>
+          <div class="stat-val c-purple">€${fmt(side)}</div>
         </div>
-      </div>
-
-      ${side>0?`
-      <div class="stat mb12">
-        <div class="stat-label">Zarađeno sa strane</div>
-        <div class="stat-val c-purple">€${fmt(side)}</div>
-      </div>`:''}
-
-      <div class="sec">Ukupna zarada</div>
-      <div class="card" style="text-align:center;padding:24px 16px;border-color:var(--bpurple);">
-        <div class="stat-label" style="margin-bottom:10px;">Sve zajedno (posao + strana)</div>
-        <div class="stat-val c-purple" style="font-size:42px;">€${fmt(total)}</div>
-        <div class="small c-muted mt8">Posao €${fmt(earned)}${side>0?` · Sa strane €${fmt(side)}`:''}</div>
       </div>`;
   }
 
@@ -683,7 +670,7 @@
     S.data.shifts.push(sh);
     S.data.shifts.sort((a,b)=>a.date.localeCompare(b.date)||a.startTime.localeCompare(b.startTime));
     scheduleSave(); toast(`Dodano €${fmt(shiftEarned(sh))}`,'ok');
-    S.eDouble=false; renderView();
+    S.eDouble=new Date(S.eDate+'T00:00:00').getDay()===0; renderView();
   };
 
   // ── ISPLATA ────────────────────────────────────────────────
@@ -828,6 +815,9 @@
     return `
       <div class="hdr"><h1>Postavke</h1></div>
 
+      <div class="sec">Statistika</div>
+      <button class="btn btn-secondary mb16" onclick="go('stats')">📊 Emmezeta statistika →</button>
+
       <div class="sec">Osobni podaci</div>
       <div class="card">
         <div class="fg"><label>Ime</label><input type="text" id="s-name" value="${esc(cfg.ownerName||'')}" placeholder="Matija"></div>
@@ -863,14 +853,6 @@
           <div class="small c-warn mt8">⚠️ Link sadrži token — nemoj dijeliti s drugima.</div>
         `:''}
       </div>
-
-      <div class="sec">Svi podaci — pregled i brisanje</div>
-      ${dataBlock('Smjene', allShifts().slice().sort((a,b)=>b.date.localeCompare(a.date)).map(s=>({
-        id:s.id, l:fmtDate(s.date)+(s.double?' +50%':''), s:`${s.startTime}–${s.endTime} · €${fmt(shiftEarned(s))}`, fn:'delShift'})))}
-      ${dataBlock('Isplate', allPayments().slice().sort((a,b)=>b.date.localeCompare(a.date)).map(p=>({
-        id:p.id, l:'💳 '+fmtDate(p.date), s:`€${fmt(p.amount)}`, fn:'delPay'})))}
-      ${dataBlock('Strana zarada', allSide().slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>({
-        id:x.id, l:esc(x.source||'—'), s:`${fmtDate(x.date)} · €${fmt(x.amount)}`, fn:'delSide'})))}
 
       <div class="sec">Račun</div>
       <div class="card">
@@ -956,6 +938,82 @@
     localStorage.setItem('gh_owner',OWNER); localStorage.setItem('gh_pat',p);
     await init();
   };
+
+  // ── STATISTIKA RADNIH SATI ────────────────────────────────
+  function vStats(){
+    const shifts=allShifts();
+    let totalWeekday=0,totalWeekend=0;
+    const monthMap={};
+
+    shifts.forEach(sh=>{
+      const h=calcHours(sh.startTime,sh.endTime);
+      const dow=new Date(sh.date+'T00:00:00').getDay();
+      const isWE=dow===0;
+      const mo=sh.date.slice(0,7);
+      if(!monthMap[mo]) monthMap[mo]={weekday:0,weekend:0,wdCount:0,weCount:0};
+      if(isWE){totalWeekend+=h;monthMap[mo].weekend+=h;monthMap[mo].weCount++;}
+      else{totalWeekday+=h;monthMap[mo].weekday+=h;monthMap[mo].wdCount++;}
+    });
+
+    const total=totalWeekday+totalWeekend;
+    const sortedMonths=Object.keys(monthMap).sort((a,b)=>b.localeCompare(a));
+
+    function fH(h){return h.toFixed(2).replace('.',',')+'h';}
+    function moLabel(ym){const[y,m]=ym.split('-');return MONTHS_FULL[parseInt(m,10)-1]+' '+y;}
+
+    const thH='font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:8px 0 6px;text-align:center;';
+    const tdV='padding:8px 0;text-align:center;font-size:13px;font-weight:600;';
+
+    return `
+      <div class="hdr">
+        <h1>Emmezeta statistika</h1>
+        <button class="btn btn-sm btn-secondary" onclick="go('settings')" style="width:auto;">← Natrag</button>
+      </div>
+
+      <div class="sec">Ukupno</div>
+      <div class="card mb12" style="text-align:center;padding:24px 16px;border-color:var(--bpurple);">
+        <div class="stat-label" style="margin-bottom:8px;">Ukupno sati</div>
+        <div class="stat-val" style="font-size:42px;">${fH(total)}</div>
+        <div class="small c-muted mt8">${shifts.length} smjena</div>
+      </div>
+      <div class="grid2 mb16">
+        <div class="stat" style="text-align:center;">
+          <div class="stat-label">Radni dani</div>
+          <div class="stat-val c-purple" style="font-size:22px;">${fH(totalWeekday)}</div>
+        </div>
+        <div class="stat" style="text-align:center;">
+          <div class="stat-label">Nedjelja</div>
+          <div class="stat-val c-warn" style="font-size:22px;">${fH(totalWeekend)}</div>
+        </div>
+      </div>
+
+      ${sortedMonths.length===0?'<div class="empty">Nema smjena.</div>':`
+      <div class="sec">Po mjesecima</div>
+      <div class="card mb16" style="padding:12px 16px;">
+        <div style="display:grid;grid-template-columns:1fr 66px 66px 66px;align-items:start;">
+          <div style="${thH}text-align:left;color:var(--muted);">Mjesec</div>
+          <div style="${thH}color:var(--pl);">Radni</div>
+          <div style="${thH}color:var(--warn);">Ned</div>
+          <div style="${thH}color:var(--muted);">Ukupno</div>
+          <div style="grid-column:1/-1;border-top:1px solid var(--border);margin:0 0 4px;"></div>
+          ${sortedMonths.map(ym=>{
+            const mo=monthMap[ym];
+            const tot=mo.weekday+mo.weekend;
+            const moCount=mo.wdCount+mo.weCount;
+            return `
+              <div style="padding:8px 0;">
+                <div style="font-size:13px;font-weight:600;">${moLabel(ym)}</div>
+                <div class="small c-muted" style="margin-top:2px;">Ukupno ${moCount} · Radno ${mo.wdCount} · Ned ${mo.weCount}</div>
+              </div>
+              <div style="${tdV}color:var(--pl);">${mo.weekday>0?fH(mo.weekday):'—'}</div>
+              <div style="${tdV}color:var(--warn);">${mo.weekend>0?fH(mo.weekend):'—'}</div>
+              <div style="${tdV}font-weight:700;">${fH(tot)}</div>
+            `;
+          }).join('')}
+        </div>
+      </div>`}
+    `;
+  }
 
   // ── ICONS ────────────────────────────────────────────────
   function iDash(){return`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>`;}
